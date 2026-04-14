@@ -1,12 +1,16 @@
 package cmd
 
 import (
+	"fmt"
+	"text/tabwriter"
+
 	"github.com/andresdefi/gpc/cmd/apks"
 	"github.com/andresdefi/gpc/cmd/apprecovery"
 	"github.com/andresdefi/gpc/cmd/apps"
 	"github.com/andresdefi/gpc/cmd/auth"
 	"github.com/andresdefi/gpc/cmd/baseplans"
 	"github.com/andresdefi/gpc/cmd/bundles"
+	cfgcmd "github.com/andresdefi/gpc/cmd/config"
 	"github.com/andresdefi/gpc/cmd/countryavailability"
 	"github.com/andresdefi/gpc/cmd/datasafety"
 	"github.com/andresdefi/gpc/cmd/deobfuscation"
@@ -35,9 +39,60 @@ import (
 	"github.com/andresdefi/gpc/cmd/testers"
 	"github.com/andresdefi/gpc/cmd/tracks"
 	"github.com/andresdefi/gpc/cmd/users"
+	"github.com/andresdefi/gpc/cmd/vitals"
 	"github.com/andresdefi/gpc/internal/exitcode"
+	"github.com/andresdefi/gpc/internal/output"
 	"github.com/spf13/cobra"
 )
+
+// commandGroup defines a logical grouping of commands for help display.
+type commandGroup struct {
+	Title    string
+	Commands []string
+}
+
+var groups = []commandGroup{
+	{
+		Title:    "GETTING STARTED",
+		Commands: []string{"auth", "config", "version", "completion"},
+	},
+	{
+		Title:    "APP MANAGEMENT",
+		Commands: []string{"apps", "edits"},
+	},
+	{
+		Title:    "RELEASE PIPELINE",
+		Commands: []string{"releases", "tracks", "apks", "bundles", "deobfuscation", "expansionfiles", "countryavailability"},
+	},
+	{
+		Title:    "MONETIZATION",
+		Commands: []string{"iap", "subscriptions", "baseplans", "offers", "onetimeproducts", "purchaseoptions", "otpoffers", "pricing"},
+	},
+	{
+		Title:    "STORE PRESENCE",
+		Commands: []string{"listings", "images", "details", "testers", "reviews", "datasafety"},
+	},
+	{
+		Title:    "APP VITALS",
+		Commands: []string{"vitals"},
+	},
+	{
+		Title:    "ORDERS & PURCHASES",
+		Commands: []string{"orders", "purchases"},
+	},
+	{
+		Title:    "ACCOUNT MANAGEMENT",
+		Commands: []string{"users", "grants"},
+	},
+	{
+		Title:    "DEVICE & RECOVERY",
+		Commands: []string{"devices", "apprecovery", "externaltransactions"},
+	},
+	{
+		Title:    "APK VARIANTS",
+		Commands: []string{"generatedapks", "systemapks", "internalsharing"},
+	},
+}
 
 var rootCmd = &cobra.Command{
 	Use:   "gpc",
@@ -52,10 +107,14 @@ apps, releases, in-app products, subscriptions, reviews, and more from your term
 
 func init() {
 	rootCmd.PersistentFlags().StringP("package", "p", "", "Android package name (e.g. com.example.app)")
-	rootCmd.PersistentFlags().StringP("output", "o", "", "Output format: json or table (default: auto-detect)")
+	rootCmd.PersistentFlags().StringP("output", "o", "", "Output format: json, table, csv, or yaml (default: auto-detect)")
 
-	// Auth & config
+	// Enable fuzzy command suggestions.
+	rootCmd.SuggestionsMinimumDistance = 2
+
+	// Getting started
 	rootCmd.AddCommand(auth.NewCmd())
+	rootCmd.AddCommand(cfgcmd.NewCmd())
 	rootCmd.AddCommand(newVersionCmd())
 
 	// App management
@@ -89,6 +148,9 @@ func init() {
 	rootCmd.AddCommand(reviews.NewCmd())
 	rootCmd.AddCommand(datasafety.NewCmd())
 
+	// App Vitals
+	rootCmd.AddCommand(vitals.NewCmd())
+
 	// Orders & purchases
 	rootCmd.AddCommand(orders.NewCmd())
 	rootCmd.AddCommand(purchases.NewCmd())
@@ -110,16 +172,81 @@ func init() {
 	rootCmd.AddCommand(generatedapks.NewCmd())
 	rootCmd.AddCommand(systemapks.NewCmd())
 	rootCmd.AddCommand(internalsharing.NewCmd())
+
+	// Override help to show grouped commands.
+	rootCmd.SetHelpFunc(groupedHelp)
 }
 
 // Execute runs the root command and returns the exit code.
 func Execute() int {
 	if err := rootCmd.Execute(); err != nil {
-		// Check if this is an API error with a status code.
 		if apiErr, ok := err.(*exitcode.ExitError); ok {
 			return apiErr.Code
 		}
+		output.Errorf("%v", err)
 		return exitcode.Error
 	}
 	return exitcode.Success
 }
+
+// groupedHelp renders commands organized by logical category instead of alphabetically.
+func groupedHelp(cmd *cobra.Command, args []string) {
+	fmt.Println(cmd.Long)
+	fmt.Println()
+
+	fmt.Println("Usage:")
+	fmt.Printf("  %s [command]\n\n", cmd.Use)
+
+	// Build a map of command name -> command for quick lookup.
+	cmdMap := make(map[string]*cobra.Command)
+	for _, c := range cmd.Commands() {
+		cmdMap[c.Name()] = c
+		for _, alias := range c.Aliases {
+			cmdMap[alias] = c
+		}
+	}
+
+	// Render each group.
+	for _, g := range groups {
+		fmt.Printf("%s:\n", g.Title)
+		tw := tabwriter.NewWriter(cmd.OutOrStdout(), 2, 4, 2, ' ', 0)
+		for _, name := range g.Commands {
+			if c, ok := cmdMap[name]; ok {
+				_, _ = fmt.Fprintf(tw, "  %s\t%s\n", c.Name(), c.Short)
+			}
+		}
+		_ = tw.Flush()
+		fmt.Println()
+	}
+
+	// Show any commands not in a group (e.g. help, completion).
+	grouped := make(map[string]bool)
+	for _, g := range groups {
+		for _, name := range g.Commands {
+			grouped[name] = true
+		}
+	}
+
+	var ungrouped []*cobra.Command
+	for _, c := range cmd.Commands() {
+		if !grouped[c.Name()] && c.Name() != "help" {
+			ungrouped = append(ungrouped, c)
+		}
+	}
+
+	if len(ungrouped) > 0 {
+		fmt.Println("ADDITIONAL COMMANDS:")
+		tw := tabwriter.NewWriter(cmd.OutOrStdout(), 2, 4, 2, ' ', 0)
+		for _, c := range ungrouped {
+			_, _ = fmt.Fprintf(tw, "  %s\t%s\n", c.Name(), c.Short)
+		}
+		_ = tw.Flush()
+		fmt.Println()
+	}
+
+	fmt.Println("Flags:")
+	fmt.Println(cmd.Flags().FlagUsages())
+
+	fmt.Printf("Use \"%s [command] --help\" for more information about a command.\n", cmd.Use)
+}
+

@@ -44,8 +44,12 @@ func NewClient(token string) *Client {
 	}
 }
 
-// NewClientWithHTTP creates a client with a custom http.Client (for testing).
+// NewClientWithHTTP creates a client with a custom http.Client and base URL.
+// If httpClient is nil, a default client with timeout is used.
 func NewClientWithHTTP(token string, httpClient *http.Client, base string) *Client {
+	if httpClient == nil {
+		httpClient = &http.Client{Timeout: clientTimeout}
+	}
 	return &Client{
 		httpClient: httpClient,
 		token:      token,

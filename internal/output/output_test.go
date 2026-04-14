@@ -50,9 +50,29 @@ func TestDetectFormat_Empty_NonTTY(t *testing.T) {
 	}
 }
 
-func TestDetectFormat_UnknownFormat(t *testing.T) {
-	// Unknown format string falls through to TTY detection.
+func TestDetectFormat_Explicit_YAML(t *testing.T) {
 	f := DetectFormat("yaml")
+	if f != FormatYAML {
+		t.Errorf("expected FormatYAML, got %v", f)
+	}
+}
+
+func TestDetectFormat_Explicit_YML(t *testing.T) {
+	f := DetectFormat("yml")
+	if f != FormatYAML {
+		t.Errorf("expected FormatYAML for 'yml', got %v", f)
+	}
+}
+
+func TestDetectFormat_Explicit_CSV(t *testing.T) {
+	f := DetectFormat("csv")
+	if f != FormatCSV {
+		t.Errorf("expected FormatCSV, got %v", f)
+	}
+}
+
+func TestDetectFormat_UnknownFormat(t *testing.T) {
+	f := DetectFormat("xml")
 	// In tests (non-TTY), should return JSON.
 	if f != FormatJSON {
 		t.Errorf("expected FormatJSON for unknown format, got %v", f)
@@ -285,5 +305,133 @@ func TestErrorf_WritesToStderr(t *testing.T) {
 	out, _ := io.ReadAll(r)
 	if !strings.Contains(string(out), "Error: something failed") {
 		t.Errorf("expected 'Error: something failed' in stderr, got: %s", out)
+	}
+}
+
+// --- YAML output ---
+
+func TestPrintYAML_Map(t *testing.T) {
+	r, w, _ := os.Pipe()
+	oldStdout := os.Stdout
+	os.Stdout = w
+
+	data := map[string]string{"name": "gpc", "version": "1.0"}
+	_ = PrintYAML(data)
+
+	_ = w.Close()
+	os.Stdout = oldStdout
+
+	out, _ := io.ReadAll(r)
+	s := string(out)
+	if !strings.Contains(s, "name: gpc") {
+		t.Errorf("expected YAML with 'name: gpc', got: %s", s)
+	}
+	if !strings.Contains(s, "version: \"1.0\"") && !strings.Contains(s, "version: '1.0'") {
+		// YAML may or may not quote strings
+		if !strings.Contains(s, "version:") {
+			t.Errorf("expected 'version' key in YAML, got: %s", s)
+		}
+	}
+}
+
+func TestPrintYAML_Struct(t *testing.T) {
+	r, w, _ := os.Pipe()
+	oldStdout := os.Stdout
+	os.Stdout = w
+
+	type item struct {
+		Name  string `json:"name"`
+		Count int    `json:"count"`
+	}
+	_ = PrintYAML(item{Name: "test", Count: 42})
+
+	_ = w.Close()
+	os.Stdout = oldStdout
+
+	out, _ := io.ReadAll(r)
+	s := string(out)
+	if !strings.Contains(s, "name: test") {
+		t.Errorf("expected 'name: test' in YAML, got: %s", s)
+	}
+	if !strings.Contains(s, "count: 42") {
+		t.Errorf("expected 'count: 42' in YAML, got: %s", s)
+	}
+}
+
+func TestPrint_YAML_Format(t *testing.T) {
+	r, w, _ := os.Pipe()
+	oldStdout := os.Stdout
+	os.Stdout = w
+
+	Print(FormatYAML, map[string]string{"key": "val"}, nil)
+
+	_ = w.Close()
+	os.Stdout = oldStdout
+
+	out, _ := io.ReadAll(r)
+	if !strings.Contains(string(out), "key: val") {
+		t.Errorf("expected YAML output with 'key: val', got: %s", out)
+	}
+}
+
+// --- CSV output ---
+
+func TestPrintCSV_Simple(t *testing.T) {
+	r, w, _ := os.Pipe()
+	oldStdout := os.Stdout
+	os.Stdout = w
+
+	headers := []string{"Name", "Value"}
+	rows := [][]string{
+		{"foo", "bar"},
+		{"baz", "qux"},
+	}
+	_ = PrintCSV(headers, rows)
+
+	_ = w.Close()
+	os.Stdout = oldStdout
+
+	out, _ := io.ReadAll(r)
+	s := string(out)
+	if !strings.Contains(s, "Name,Value") {
+		t.Errorf("expected CSV headers, got: %s", s)
+	}
+	if !strings.Contains(s, "foo,bar") {
+		t.Errorf("expected 'foo,bar' row, got: %s", s)
+	}
+}
+
+func TestPrintWithCSV_UsesCSV(t *testing.T) {
+	r, w, _ := os.Pipe()
+	oldStdout := os.Stdout
+	os.Stdout = w
+
+	headers := []string{"A", "B"}
+	rows := [][]string{{"1", "2"}}
+	PrintWithCSV(FormatCSV, nil, nil, headers, rows)
+
+	_ = w.Close()
+	os.Stdout = oldStdout
+
+	out, _ := io.ReadAll(r)
+	s := string(out)
+	if !strings.Contains(s, "A,B") {
+		t.Errorf("expected CSV output, got: %s", s)
+	}
+}
+
+func TestPrintWithCSV_FallsBackToJSON(t *testing.T) {
+	r, w, _ := os.Pipe()
+	oldStdout := os.Stdout
+	os.Stdout = w
+
+	PrintWithCSV(FormatJSON, map[string]string{"x": "y"}, nil, nil, nil)
+
+	_ = w.Close()
+	os.Stdout = oldStdout
+
+	out, _ := io.ReadAll(r)
+	if !strings.Contains(string(out), `"x"`) {
+		t.Errorf("expected JSON output, got: %s", out)
 	}
 }

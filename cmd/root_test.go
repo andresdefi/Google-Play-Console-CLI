@@ -225,13 +225,106 @@ func TestGrantsCommand_Exists(t *testing.T) {
 	}
 }
 
+// New command tests
+
+func TestConfigCommand_Exists(t *testing.T) {
+	if !findSubcommand("config") {
+		t.Error("expected 'config' subcommand")
+	}
+}
+
+func TestConfigCommand_HasSubcommands(t *testing.T) {
+	for _, c := range rootCmd.Commands() {
+		if c.Name() == "config" {
+			expected := []string{"set", "get", "list", "path"}
+			subs := make(map[string]bool)
+			for _, sub := range c.Commands() {
+				subs[sub.Name()] = true
+			}
+			for _, name := range expected {
+				if !subs[name] {
+					t.Errorf("expected 'config %s' subcommand", name)
+				}
+			}
+			return
+		}
+	}
+	t.Error("config command not found")
+}
+
+func TestVitalsCommand_Exists(t *testing.T) {
+	if !findSubcommand("vitals") {
+		t.Error("expected 'vitals' subcommand")
+	}
+}
+
+func TestVitalsCommand_HasSubcommands(t *testing.T) {
+	for _, c := range rootCmd.Commands() {
+		if c.Name() == "vitals" {
+			expected := []string{"overview", "crashes", "anrs", "startup", "rendering", "battery", "errors"}
+			subs := make(map[string]bool)
+			for _, sub := range c.Commands() {
+				subs[sub.Name()] = true
+			}
+			for _, name := range expected {
+				if !subs[name] {
+					t.Errorf("expected 'vitals %s' subcommand", name)
+				}
+			}
+			return
+		}
+	}
+	t.Error("vitals command not found")
+}
+
+func TestFuzzySuggestions_Enabled(t *testing.T) {
+	if rootCmd.SuggestionsMinimumDistance != 2 {
+		t.Errorf("expected SuggestionsMinimumDistance=2, got %d", rootCmd.SuggestionsMinimumDistance)
+	}
+}
+
+func TestFuzzySuggestions_Releases(t *testing.T) {
+	suggestions := rootCmd.SuggestionsFor("relaeses")
+	found := false
+	for _, s := range suggestions {
+		if s == "releases" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Errorf("expected 'releases' suggestion for 'relaeses', got %v", suggestions)
+	}
+}
+
+func TestFuzzySuggestions_Auth(t *testing.T) {
+	suggestions := rootCmd.SuggestionsFor("auht")
+	found := false
+	for _, s := range suggestions {
+		if s == "auth" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Errorf("expected 'auth' suggestion for 'auht', got %v", suggestions)
+	}
+}
+
+func TestGroupedHelp_Configured(t *testing.T) {
+	if rootCmd.HelpFunc() == nil {
+		t.Error("expected custom help function to be set")
+	}
+}
+
 func TestAllCommandsRegistered(t *testing.T) {
 	expected := []string{
-		"auth", "version", "apps", "edits", "tracks", "releases",
+		"auth", "config", "version", "apps", "edits", "tracks", "releases",
 		"apks", "bundles", "deobfuscation", "expansionfiles", "countryavailability",
 		"iap", "subscriptions", "baseplans", "offers",
 		"onetimeproducts", "purchaseoptions", "otpoffers", "pricing",
 		"listings", "images", "details", "testers", "reviews", "datasafety",
+		"vitals",
 		"orders", "purchases",
 		"users", "grants",
 		"devices",
@@ -252,8 +345,27 @@ func TestAllCommandsRegistered(t *testing.T) {
 		}
 	}
 
-	// Check total count is at least as many as expected.
 	if len(cmds) < len(expected) {
 		t.Errorf("expected at least %d subcommands, got %d", len(expected), len(cmds))
+	}
+}
+
+func TestAllGroupsCoverAllCommands(t *testing.T) {
+	grouped := make(map[string]bool)
+	for _, g := range groups {
+		for _, name := range g.Commands {
+			grouped[name] = true
+		}
+	}
+
+	for _, c := range rootCmd.Commands() {
+		name := c.Name()
+		// help and completion are built-in Cobra commands, not in our groups.
+		if name == "help" || name == "completion" {
+			continue
+		}
+		if !grouped[name] {
+			t.Errorf("command %q is not in any help group", name)
+		}
 	}
 }
