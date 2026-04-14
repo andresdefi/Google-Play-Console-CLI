@@ -59,10 +59,10 @@ func TestLoad_ValidConfig(t *testing.T) {
 	t.Setenv("HOME", tmp)
 
 	dir := filepath.Join(tmp, ".gpc")
-	os.MkdirAll(dir, 0700)
+	_ = os.MkdirAll(dir, 0700)
 
 	data := `{"key_file_path":"/path/to/key.json","package_name":"com.example"}`
-	os.WriteFile(filepath.Join(dir, "config.json"), []byte(data), 0600)
+	_ = os.WriteFile(filepath.Join(dir, "config.json"), []byte(data), 0600)
 
 	cfg, err := Load()
 	if err != nil {
@@ -81,8 +81,8 @@ func TestLoad_InvalidJSON(t *testing.T) {
 	t.Setenv("HOME", tmp)
 
 	dir := filepath.Join(tmp, ".gpc")
-	os.MkdirAll(dir, 0700)
-	os.WriteFile(filepath.Join(dir, "config.json"), []byte("not json!"), 0600)
+	_ = os.MkdirAll(dir, 0700)
+	_ = os.WriteFile(filepath.Join(dir, "config.json"), []byte("not json!"), 0600)
 
 	_, err := Load()
 	if err == nil {
@@ -123,7 +123,7 @@ func TestSave_OverwriteConfig(t *testing.T) {
 	t.Setenv("HOME", tmp)
 
 	cfg1 := &Config{KeyFilePath: "/old.json"}
-	Save(cfg1)
+	_ = Save(cfg1)
 
 	cfg2 := &Config{KeyFilePath: "/new.json"}
 	if err := Save(cfg2); err != nil {
@@ -162,7 +162,7 @@ func TestClear_Exists(t *testing.T) {
 	tmp := t.TempDir()
 	t.Setenv("HOME", tmp)
 
-	Save(&Config{KeyFilePath: "/key.json"})
+	_ = Save(&Config{KeyFilePath: "/key.json"})
 
 	if err := Clear(); err != nil {
 		t.Fatalf("unexpected error: %v", err)
@@ -212,7 +212,7 @@ func TestConfig_Permissions(t *testing.T) {
 	tmp := t.TempDir()
 	t.Setenv("HOME", tmp)
 
-	Save(&Config{KeyFilePath: "/key.json"})
+	_ = Save(&Config{KeyFilePath: "/key.json"})
 
 	// Check directory permissions.
 	dir := filepath.Join(tmp, ".gpc")
@@ -242,7 +242,7 @@ func TestConfig_AtomicWrite(t *testing.T) {
 	tmp := t.TempDir()
 	t.Setenv("HOME", tmp)
 
-	Save(&Config{KeyFilePath: "/key.json"})
+	_ = Save(&Config{KeyFilePath: "/key.json"})
 
 	// After save, there should be no .tmp file remaining.
 	p := filepath.Join(tmp, ".gpc", "config.json.tmp")
@@ -256,7 +256,7 @@ func TestConfig_EmptyFields(t *testing.T) {
 	t.Setenv("HOME", tmp)
 
 	cfg := &Config{}
-	Save(cfg)
+	_ = Save(cfg)
 
 	loaded, err := Load()
 	if err != nil {
@@ -278,7 +278,7 @@ func TestConfig_AllFields(t *testing.T) {
 		KeyFilePath: "/very/long/path/to/service-account.json",
 		PackageName: "com.very.long.package.name.app",
 	}
-	Save(cfg)
+	_ = Save(cfg)
 
 	loaded, err := Load()
 	if err != nil {

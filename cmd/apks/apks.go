@@ -46,7 +46,7 @@ func newListCmd() *cobra.Command {
 			if err != nil {
 				return exitcode.APIErrorExit("%v", err)
 			}
-			defer client.DeleteEdit(pkg, edit.ID)
+			defer func() { _ = client.DeleteEdit(pkg, edit.ID) }()
 
 			resp, err := client.Get(api.APKsPath(pkg, edit.ID), nil)
 			if err != nil {
@@ -73,7 +73,7 @@ func newListCmd() *cobra.Command {
 					}
 					t.Render()
 				} else {
-					fmt.Fprintln(w, string(raw))
+					_, _ = fmt.Fprintln(w, string(raw))
 				}
 			})
 			return nil
@@ -149,6 +149,6 @@ func newAddExternallyHostedCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&url, "url", "", "URL of the externally hosted APK (required)")
-	cmd.MarkFlagRequired("url")
+	_ = cmd.MarkFlagRequired("url")
 	return cmd
 }

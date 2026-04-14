@@ -76,7 +76,7 @@ func newListCmd() *cobra.Command {
 					}
 					t.Render()
 				} else {
-					fmt.Fprintln(w, string(data.(json.RawMessage)))
+					_, _ = fmt.Fprintln(w, string(data.(json.RawMessage)))
 				}
 			})
 			return nil
@@ -112,7 +112,7 @@ func newGetCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&reviewID, "review-id", "", "Review ID (required)")
-	cmd.MarkFlagRequired("review-id")
+	_ = cmd.MarkFlagRequired("review-id")
 	return cmd
 }
 
@@ -149,7 +149,7 @@ func newReplyCmd() *cobra.Command {
 	}
 	cmd.Flags().StringVar(&reviewID, "review-id", "", "Review ID (required)")
 	cmd.Flags().StringVar(&text, "text", "", "Reply text (required)")
-	cmd.MarkFlagRequired("review-id")
-	cmd.MarkFlagRequired("text")
+	_ = cmd.MarkFlagRequired("review-id")
+	_ = cmd.MarkFlagRequired("text")
 	return cmd
 }

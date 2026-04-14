@@ -71,7 +71,7 @@ func newListCmd() *cobra.Command {
 					}
 					t.Render()
 				} else {
-					fmt.Fprintln(w, string(data.(json.RawMessage)))
+					_, _ = fmt.Fprintln(w, string(data.(json.RawMessage)))
 				}
 			})
 			return nil
@@ -79,8 +79,8 @@ func newListCmd() *cobra.Command {
 	}
 	cmd.Flags().StringVar(&language, "language", "", "Language code (required)")
 	cmd.Flags().StringVar(&imageType, "type", "", "Image type (required)")
-	cmd.MarkFlagRequired("language")
-	cmd.MarkFlagRequired("type")
+	_ = cmd.MarkFlagRequired("language")
+	_ = cmd.MarkFlagRequired("type")
 	return cmd
 }
 
@@ -120,8 +120,8 @@ func newUploadCmd() *cobra.Command {
 	}
 	cmd.Flags().StringVar(&language, "language", "", "Language code (required)")
 	cmd.Flags().StringVar(&imageType, "type", "", "Image type (required)")
-	cmd.MarkFlagRequired("language")
-	cmd.MarkFlagRequired("type")
+	_ = cmd.MarkFlagRequired("language")
+	_ = cmd.MarkFlagRequired("type")
 	return cmd
 }
 
@@ -160,9 +160,9 @@ func newDeleteCmd() *cobra.Command {
 	cmd.Flags().StringVar(&language, "language", "", "Language code (required)")
 	cmd.Flags().StringVar(&imageType, "type", "", "Image type (required)")
 	cmd.Flags().StringVar(&imageID, "image-id", "", "Image ID (required)")
-	cmd.MarkFlagRequired("language")
-	cmd.MarkFlagRequired("type")
-	cmd.MarkFlagRequired("image-id")
+	_ = cmd.MarkFlagRequired("language")
+	_ = cmd.MarkFlagRequired("type")
+	_ = cmd.MarkFlagRequired("image-id")
 	return cmd
 }
 
@@ -199,8 +199,8 @@ func newDeleteAllCmd() *cobra.Command {
 	}
 	cmd.Flags().StringVar(&language, "language", "", "Language code (required)")
 	cmd.Flags().StringVar(&imageType, "type", "", "Image type (required)")
-	cmd.MarkFlagRequired("language")
-	cmd.MarkFlagRequired("type")
+	_ = cmd.MarkFlagRequired("language")
+	_ = cmd.MarkFlagRequired("type")
 	return cmd
 }
 
@@ -210,7 +210,7 @@ func withTempEdit(client *api.Client, pkg string, fn func(editID string) (json.R
 	if err != nil {
 		return nil, err
 	}
-	defer client.DeleteEdit(pkg, edit.ID)
+	defer func() { _ = client.DeleteEdit(pkg, edit.ID) }()
 
 	return fn(edit.ID)
 }

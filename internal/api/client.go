@@ -105,7 +105,7 @@ func (c *Client) Upload(path string, filePath string, contentType string) (json.
 	if err != nil {
 		return nil, fmt.Errorf("could not open file: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
@@ -118,7 +118,7 @@ func (c *Client) Upload(path string, filePath string, contentType string) (json.
 	if _, err := io.Copy(part, file); err != nil {
 		return nil, fmt.Errorf("could not copy file content: %w", err)
 	}
-	writer.Close()
+	_ = writer.Close()
 
 	fullURL := c.uploadURL + path
 	req, err := http.NewRequest(http.MethodPost, fullURL, body)
@@ -134,7 +134,7 @@ func (c *Client) Upload(path string, filePath string, contentType string) (json.
 	if err != nil {
 		return nil, fmt.Errorf("upload request failed: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
@@ -163,7 +163,7 @@ func (c *Client) DownloadToFile(path string, destPath string) error {
 	if err != nil {
 		return fmt.Errorf("download request failed: %w", err)
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode >= 400 {
 		body, _ := io.ReadAll(resp.Body)
@@ -174,7 +174,7 @@ func (c *Client) DownloadToFile(path string, destPath string) error {
 	if err != nil {
 		return fmt.Errorf("could not create output file: %w", err)
 	}
-	defer out.Close()
+	defer func() { _ = out.Close() }()
 
 	if _, err := io.Copy(out, resp.Body); err != nil {
 		return fmt.Errorf("could not write file: %w", err)
@@ -241,7 +241,7 @@ func (c *Client) doWithParams(method, path string, params map[string]string, bod
 		}
 
 		data, err := io.ReadAll(resp.Body)
-		resp.Body.Close()
+		_ = resp.Body.Close()
 		if err != nil {
 			lastErr = fmt.Errorf("could not read response: %w", err)
 			continue

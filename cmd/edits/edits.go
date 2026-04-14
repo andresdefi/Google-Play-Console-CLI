@@ -1,7 +1,6 @@
 package edits
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 
@@ -92,7 +91,7 @@ func newGetCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&editID, "edit-id", "", "Edit session ID (required)")
-	cmd.MarkFlagRequired("edit-id")
+	_ = cmd.MarkFlagRequired("edit-id")
 	return cmd
 }
 
@@ -123,7 +122,7 @@ func newValidateCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&editID, "edit-id", "", "Edit session ID (required)")
-	cmd.MarkFlagRequired("edit-id")
+	_ = cmd.MarkFlagRequired("edit-id")
 	return cmd
 }
 
@@ -155,7 +154,7 @@ func newCommitCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&editID, "edit-id", "", "Edit session ID (required)")
-	cmd.MarkFlagRequired("edit-id")
+	_ = cmd.MarkFlagRequired("edit-id")
 	return cmd
 }
 
@@ -185,16 +184,7 @@ func newDeleteCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&editID, "edit-id", "", "Edit session ID (required)")
-	cmd.MarkFlagRequired("edit-id")
+	_ = cmd.MarkFlagRequired("edit-id")
 	return cmd
 }
 
-// helper for raw JSON table rendering
-func renderJSON(w io.Writer, data any) {
-	raw, ok := data.(json.RawMessage)
-	if !ok {
-		fmt.Fprintln(w, data)
-		return
-	}
-	fmt.Fprintln(w, string(raw))
-}

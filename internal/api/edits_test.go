@@ -25,7 +25,7 @@ func TestCreateEdit_Success(t *testing.T) {
 			t.Errorf("expected path ending with /edits, got %s", r.URL.Path)
 		}
 		w.WriteHeader(200)
-		json.NewEncoder(w).Encode(Edit{ID: "edit-123", ExpiryTimeSeconds: "3600"})
+		_ = json.NewEncoder(w).Encode(Edit{ID: "edit-123", ExpiryTimeSeconds: "3600"})
 	})
 	defer srv.Close()
 
@@ -44,7 +44,7 @@ func TestCreateEdit_Success(t *testing.T) {
 func TestCreateEdit_Error(t *testing.T) {
 	c, srv := editsTestClient(t, func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(403)
-		w.Write([]byte(`{"error":{"code":403,"message":"forbidden"}}`))
+		_, _ = w.Write([]byte(`{"error":{"code":403,"message":"forbidden"}}`))
 	})
 	defer srv.Close()
 
@@ -63,7 +63,7 @@ func TestGetEdit_Success(t *testing.T) {
 			t.Errorf("expected GET, got %s", r.Method)
 		}
 		w.WriteHeader(200)
-		json.NewEncoder(w).Encode(Edit{ID: "edit-456"})
+		_ = json.NewEncoder(w).Encode(Edit{ID: "edit-456"})
 	})
 	defer srv.Close()
 
@@ -85,7 +85,7 @@ func TestValidateEdit_Success(t *testing.T) {
 			t.Errorf("expected path ending with :validate, got %s", r.URL.Path)
 		}
 		w.WriteHeader(200)
-		json.NewEncoder(w).Encode(Edit{ID: "edit-789"})
+		_ = json.NewEncoder(w).Encode(Edit{ID: "edit-789"})
 	})
 	defer srv.Close()
 
@@ -107,7 +107,7 @@ func TestCommitEdit_Success(t *testing.T) {
 			t.Errorf("expected path ending with :commit, got %s", r.URL.Path)
 		}
 		w.WriteHeader(200)
-		json.NewEncoder(w).Encode(Edit{ID: "edit-committed"})
+		_ = json.NewEncoder(w).Encode(Edit{ID: "edit-committed"})
 	})
 	defer srv.Close()
 
@@ -138,7 +138,7 @@ func TestDeleteEdit_Success(t *testing.T) {
 func TestDeleteEdit_Error(t *testing.T) {
 	c, srv := editsTestClient(t, func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(404)
-		w.Write([]byte(`{"error":{"code":404,"message":"edit not found"}}`))
+		_, _ = w.Write([]byte(`{"error":{"code":404,"message":"edit not found"}}`))
 	})
 	defer srv.Close()
 
@@ -156,15 +156,15 @@ func TestWithEdit_Success(t *testing.T) {
 		case r.Method == http.MethodPost && strings.HasSuffix(r.URL.Path, "/edits"):
 			// CreateEdit
 			w.WriteHeader(200)
-			json.NewEncoder(w).Encode(Edit{ID: "e1"})
+			_ = json.NewEncoder(w).Encode(Edit{ID: "e1"})
 		case r.Method == http.MethodPost && strings.HasSuffix(r.URL.Path, ":commit"):
 			// CommitEdit
 			w.WriteHeader(200)
-			json.NewEncoder(w).Encode(Edit{ID: "e1"})
+			_ = json.NewEncoder(w).Encode(Edit{ID: "e1"})
 		default:
 			// Any inner calls from fn
 			w.WriteHeader(200)
-			w.Write([]byte(`{}`))
+			_, _ = w.Write([]byte(`{}`))
 		}
 	})
 	defer srv.Close()
@@ -194,13 +194,13 @@ func TestWithEdit_FnError(t *testing.T) {
 		switch {
 		case r.Method == http.MethodPost && strings.HasSuffix(r.URL.Path, "/edits"):
 			w.WriteHeader(200)
-			json.NewEncoder(w).Encode(Edit{ID: "e2"})
+			_ = json.NewEncoder(w).Encode(Edit{ID: "e2"})
 		case r.Method == http.MethodDelete:
 			deleteCalled = true
 			w.WriteHeader(204)
 		default:
 			w.WriteHeader(200)
-			w.Write([]byte(`{}`))
+			_, _ = w.Write([]byte(`{}`))
 		}
 	})
 	defer srv.Close()
@@ -225,16 +225,16 @@ func TestWithEdit_CommitError(t *testing.T) {
 		switch {
 		case r.Method == http.MethodPost && strings.HasSuffix(r.URL.Path, "/edits") && !strings.Contains(r.URL.Path, ":commit"):
 			w.WriteHeader(200)
-			json.NewEncoder(w).Encode(Edit{ID: "e3"})
+			_ = json.NewEncoder(w).Encode(Edit{ID: "e3"})
 		case r.Method == http.MethodPost && strings.HasSuffix(r.URL.Path, ":commit"):
 			w.WriteHeader(500)
-			w.Write([]byte(`{"error":{"code":500,"message":"commit failed"}}`))
+			_, _ = w.Write([]byte(`{"error":{"code":500,"message":"commit failed"}}`))
 		case r.Method == http.MethodDelete:
 			deleteCalled = true
 			w.WriteHeader(204)
 		default:
 			w.WriteHeader(200)
-			w.Write([]byte(`{}`))
+			_, _ = w.Write([]byte(`{}`))
 		}
 	})
 	defer srv.Close()
@@ -256,7 +256,7 @@ func TestWithEdit_CommitError(t *testing.T) {
 func TestCreateEdit_InvalidJSON(t *testing.T) {
 	c, srv := editsTestClient(t, func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(200)
-		w.Write([]byte(`not json`))
+		_, _ = w.Write([]byte(`not json`))
 	})
 	defer srv.Close()
 

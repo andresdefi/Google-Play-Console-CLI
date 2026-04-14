@@ -86,7 +86,7 @@ func Save(cfg *Config) error {
 		return fmt.Errorf("could not write config: %w", err)
 	}
 	if err := os.Rename(tmp, p); err != nil {
-		os.Remove(tmp)
+		_ = os.Remove(tmp)
 		return fmt.Errorf("could not save config: %w", err)
 	}
 	return nil

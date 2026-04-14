@@ -63,7 +63,7 @@ func TestGet_Success(t *testing.T) {
 			t.Errorf("expected GET, got %s", r.Method)
 		}
 		w.WriteHeader(200)
-		w.Write([]byte(`{"ok":true}`))
+		_, _ = w.Write([]byte(`{"ok":true}`))
 	})
 	defer srv.Close()
 
@@ -85,7 +85,7 @@ func TestGet_WithParams(t *testing.T) {
 			t.Errorf("expected query param baz=qux, got %q", r.URL.Query().Get("baz"))
 		}
 		w.WriteHeader(200)
-		w.Write([]byte(`{}`))
+		_, _ = w.Write([]byte(`{}`))
 	})
 	defer srv.Close()
 
@@ -118,7 +118,7 @@ func TestPost_Success(t *testing.T) {
 			t.Errorf("expected POST, got %s", r.Method)
 		}
 		w.WriteHeader(200)
-		w.Write([]byte(`{"created":true}`))
+		_, _ = w.Write([]byte(`{"created":true}`))
 	})
 	defer srv.Close()
 
@@ -146,7 +146,7 @@ func TestPost_JSONBody(t *testing.T) {
 			t.Errorf("expected body name=test, got %q", m["name"])
 		}
 		w.WriteHeader(200)
-		w.Write([]byte(`{}`))
+		_, _ = w.Write([]byte(`{}`))
 	})
 	defer srv.Close()
 
@@ -163,7 +163,7 @@ func TestPost_NilBody_NoContentType(t *testing.T) {
 			t.Errorf("expected no Content-Type for nil body, got %q", ct)
 		}
 		w.WriteHeader(200)
-		w.Write([]byte(`{}`))
+		_, _ = w.Write([]byte(`{}`))
 	})
 	defer srv.Close()
 
@@ -181,7 +181,7 @@ func TestPut_Success(t *testing.T) {
 			t.Errorf("expected PUT, got %s", r.Method)
 		}
 		w.WriteHeader(200)
-		w.Write([]byte(`{"updated":true}`))
+		_, _ = w.Write([]byte(`{"updated":true}`))
 	})
 	defer srv.Close()
 
@@ -202,7 +202,7 @@ func TestPatch_Success(t *testing.T) {
 			t.Errorf("expected PATCH, got %s", r.Method)
 		}
 		w.WriteHeader(200)
-		w.Write([]byte(`{"patched":true}`))
+		_, _ = w.Write([]byte(`{"patched":true}`))
 	})
 	defer srv.Close()
 
@@ -221,7 +221,7 @@ func TestPatch_WithParams(t *testing.T) {
 			t.Errorf("expected updateMask=price, got %q", r.URL.Query().Get("updateMask"))
 		}
 		w.WriteHeader(200)
-		w.Write([]byte(`{}`))
+		_, _ = w.Write([]byte(`{}`))
 	})
 	defer srv.Close()
 
@@ -253,7 +253,7 @@ func TestDelete_Success(t *testing.T) {
 func TestGet_APIError(t *testing.T) {
 	c, srv := testClient(t, func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(400)
-		w.Write([]byte(`{"error":{"code":400,"message":"bad request","status":"INVALID_ARGUMENT"}}`))
+		_, _ = w.Write([]byte(`{"error":{"code":400,"message":"bad request","status":"INVALID_ARGUMENT"}}`))
 	})
 	defer srv.Close()
 
@@ -276,7 +276,7 @@ func TestGet_APIError(t *testing.T) {
 func TestGet_401_Unauthorized(t *testing.T) {
 	c, srv := testClient(t, func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(401)
-		w.Write([]byte(`{"error":{"code":401,"message":"unauthorized"}}`))
+		_, _ = w.Write([]byte(`{"error":{"code":401,"message":"unauthorized"}}`))
 	})
 	defer srv.Close()
 
@@ -293,7 +293,7 @@ func TestGet_401_Unauthorized(t *testing.T) {
 func TestGet_403_Forbidden(t *testing.T) {
 	c, srv := testClient(t, func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(403)
-		w.Write([]byte(`{"error":{"code":403,"message":"forbidden"}}`))
+		_, _ = w.Write([]byte(`{"error":{"code":403,"message":"forbidden"}}`))
 	})
 	defer srv.Close()
 
@@ -310,7 +310,7 @@ func TestGet_403_Forbidden(t *testing.T) {
 func TestGet_404_NotFound(t *testing.T) {
 	c, srv := testClient(t, func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(404)
-		w.Write([]byte(`{"error":{"code":404,"message":"not found"}}`))
+		_, _ = w.Write([]byte(`{"error":{"code":404,"message":"not found"}}`))
 	})
 	defer srv.Close()
 
@@ -327,7 +327,7 @@ func TestGet_404_NotFound(t *testing.T) {
 func TestGet_409_Conflict(t *testing.T) {
 	c, srv := testClient(t, func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(409)
-		w.Write([]byte(`{"error":{"code":409,"message":"conflict"}}`))
+		_, _ = w.Write([]byte(`{"error":{"code":409,"message":"conflict"}}`))
 	})
 	defer srv.Close()
 
@@ -347,11 +347,11 @@ func TestGet_429_TooManyRequests_Retries(t *testing.T) {
 		attempts++
 		if attempts <= 3 {
 			w.WriteHeader(429)
-			w.Write([]byte(`{"error":{"code":429,"message":"rate limited"}}`))
+			_, _ = w.Write([]byte(`{"error":{"code":429,"message":"rate limited"}}`))
 			return
 		}
 		w.WriteHeader(200)
-		w.Write([]byte(`{"ok":true}`))
+		_, _ = w.Write([]byte(`{"ok":true}`))
 	})
 	defer srv.Close()
 
@@ -373,11 +373,11 @@ func TestGet_500_ServerError_Retries(t *testing.T) {
 		attempts++
 		if attempts <= 2 {
 			w.WriteHeader(500)
-			w.Write([]byte(`{"error":{"code":500,"message":"internal"}}`))
+			_, _ = w.Write([]byte(`{"error":{"code":500,"message":"internal"}}`))
 			return
 		}
 		w.WriteHeader(200)
-		w.Write([]byte(`{"ok":true}`))
+		_, _ = w.Write([]byte(`{"ok":true}`))
 	})
 	defer srv.Close()
 
@@ -398,7 +398,7 @@ func TestGet_502_BadGateway_Retries(t *testing.T) {
 	c, srv := testClient(t, func(w http.ResponseWriter, r *http.Request) {
 		attempts++
 		w.WriteHeader(502)
-		w.Write([]byte(`{"error":{"code":502,"message":"bad gateway"}}`))
+		_, _ = w.Write([]byte(`{"error":{"code":502,"message":"bad gateway"}}`))
 	})
 	defer srv.Close()
 
@@ -417,7 +417,7 @@ func TestGet_503_ServiceUnavailable_Retries(t *testing.T) {
 	c, srv := testClient(t, func(w http.ResponseWriter, r *http.Request) {
 		attempts++
 		w.WriteHeader(503)
-		w.Write([]byte(`{"error":{"code":503,"message":"unavailable"}}`))
+		_, _ = w.Write([]byte(`{"error":{"code":503,"message":"unavailable"}}`))
 	})
 	defer srv.Close()
 
@@ -433,7 +433,7 @@ func TestGet_503_ServiceUnavailable_Retries(t *testing.T) {
 func TestPost_APIError(t *testing.T) {
 	c, srv := testClient(t, func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(422)
-		w.Write([]byte(`{"error":{"code":422,"message":"unprocessable"}}`))
+		_, _ = w.Write([]byte(`{"error":{"code":422,"message":"unprocessable"}}`))
 	})
 	defer srv.Close()
 
@@ -450,7 +450,7 @@ func TestPost_APIError(t *testing.T) {
 func TestDelete_APIError(t *testing.T) {
 	c, srv := testClient(t, func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(404)
-		w.Write([]byte(`{"error":{"code":404,"message":"not found"}}`))
+		_, _ = w.Write([]byte(`{"error":{"code":404,"message":"not found"}}`))
 	})
 	defer srv.Close()
 
@@ -494,7 +494,7 @@ func TestUpload_Success(t *testing.T) {
 			t.Errorf("expected multipart/form-data Content-Type, got %q", ct)
 		}
 		w.WriteHeader(200)
-		w.Write([]byte(`{"versionCode":42}`))
+		_, _ = w.Write([]byte(`{"versionCode":42}`))
 	})
 	defer srv.Close()
 
@@ -531,12 +531,12 @@ func TestUpload_FileNotFound(t *testing.T) {
 func TestUpload_APIError(t *testing.T) {
 	c, srv := testClient(t, func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(400)
-		w.Write([]byte(`{"error":{"code":400,"message":"invalid APK"}}`))
+		_, _ = w.Write([]byte(`{"error":{"code":400,"message":"invalid APK"}}`))
 	})
 	defer srv.Close()
 
 	tmp := filepath.Join(t.TempDir(), "test.apk")
-	os.WriteFile(tmp, []byte("bad-apk"), 0644)
+	_ = os.WriteFile(tmp, []byte("bad-apk"), 0644)
 
 	_, err := c.Upload("/upload", tmp, "application/octet-stream")
 	if err == nil {
@@ -559,7 +559,7 @@ func TestDownloadToFile_Success(t *testing.T) {
 			t.Errorf("expected GET, got %s", r.Method)
 		}
 		w.WriteHeader(200)
-		w.Write([]byte("file-content-here"))
+		_, _ = w.Write([]byte("file-content-here"))
 	})
 	defer srv.Close()
 
@@ -581,7 +581,7 @@ func TestDownloadToFile_Success(t *testing.T) {
 func TestDownloadToFile_APIError(t *testing.T) {
 	c, srv := testClient(t, func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(403)
-		w.Write([]byte(`{"error":{"code":403,"message":"forbidden"}}`))
+		_, _ = w.Write([]byte(`{"error":{"code":403,"message":"forbidden"}}`))
 	})
 	defer srv.Close()
 
@@ -608,11 +608,11 @@ func TestUserAgent_Header(t *testing.T) {
 			t.Errorf("expected User-Agent starting with 'gpc-cli/', got %q", ua)
 		}
 		w.WriteHeader(200)
-		w.Write([]byte(`{}`))
+		_, _ = w.Write([]byte(`{}`))
 	})
 	defer srv.Close()
 
-	c.Get("/test", nil)
+	_, _ = c.Get("/test", nil)
 }
 
 func TestAuthorization_Header(t *testing.T) {
@@ -623,11 +623,11 @@ func TestAuthorization_Header(t *testing.T) {
 			t.Errorf("expected Authorization %q, got %q", expected, auth)
 		}
 		w.WriteHeader(200)
-		w.Write([]byte(`{}`))
+		_, _ = w.Write([]byte(`{}`))
 	})
 	defer srv.Close()
 
-	c.Get("/test", nil)
+	_, _ = c.Get("/test", nil)
 }
 
 // --- Path builders ---

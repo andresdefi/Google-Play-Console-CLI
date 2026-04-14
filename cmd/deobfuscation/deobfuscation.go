@@ -63,7 +63,7 @@ func newUploadCmd() *cobra.Command {
 	}
 	cmd.Flags().IntVar(&versionCode, "apk-version", 0, "APK version code (required)")
 	cmd.Flags().StringVar(&fileType, "type", "", "File type: proguard or nativeCode (required)")
-	cmd.MarkFlagRequired("apk-version")
-	cmd.MarkFlagRequired("type")
+	_ = cmd.MarkFlagRequired("apk-version")
+	_ = cmd.MarkFlagRequired("type")
 	return cmd
 }

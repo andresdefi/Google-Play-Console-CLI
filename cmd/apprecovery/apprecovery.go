@@ -64,7 +64,7 @@ func newListCmd() *cobra.Command {
 					}
 					t.Render()
 				} else {
-					fmt.Fprintln(w, string(raw))
+					_, _ = fmt.Fprintln(w, string(raw))
 				}
 			})
 			return nil
@@ -132,7 +132,7 @@ func newDeployCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&recoveryID, "recovery-id", "", "Recovery action ID (required)")
-	cmd.MarkFlagRequired("recovery-id")
+	_ = cmd.MarkFlagRequired("recovery-id")
 	return cmd
 }
 
@@ -163,7 +163,7 @@ func newCancelCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&recoveryID, "recovery-id", "", "Recovery action ID (required)")
-	cmd.MarkFlagRequired("recovery-id")
+	_ = cmd.MarkFlagRequired("recovery-id")
 	return cmd
 }
 
@@ -201,6 +201,6 @@ func newAddTargetingCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&recoveryID, "recovery-id", "", "Recovery action ID (required)")
-	cmd.MarkFlagRequired("recovery-id")
+	_ = cmd.MarkFlagRequired("recovery-id")
 	return cmd
 }

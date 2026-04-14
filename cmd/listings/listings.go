@@ -66,7 +66,7 @@ func newListCmd() *cobra.Command {
 					}
 					t.Render()
 				} else {
-					fmt.Fprintln(w, string(data.(json.RawMessage)))
+					_, _ = fmt.Fprintln(w, string(data.(json.RawMessage)))
 				}
 			})
 			return nil
@@ -104,7 +104,7 @@ func newGetCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&language, "language", "", "Language code (required)")
-	cmd.MarkFlagRequired("language")
+	_ = cmd.MarkFlagRequired("language")
 	return cmd
 }
 
@@ -143,7 +143,7 @@ func newUpdateCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&language, "language", "", "Language code (required)")
-	cmd.MarkFlagRequired("language")
+	_ = cmd.MarkFlagRequired("language")
 	return cmd
 }
 
@@ -176,7 +176,7 @@ func newDeleteCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&language, "language", "", "Language code (required)")
-	cmd.MarkFlagRequired("language")
+	_ = cmd.MarkFlagRequired("language")
 	return cmd
 }
 
@@ -214,7 +214,7 @@ func withTempEdit(client *api.Client, pkg string, fn func(editID string) (json.R
 	if err != nil {
 		return nil, err
 	}
-	defer client.DeleteEdit(pkg, edit.ID)
+	defer func() { _ = client.DeleteEdit(pkg, edit.ID) }()
 
 	return fn(edit.ID)
 }

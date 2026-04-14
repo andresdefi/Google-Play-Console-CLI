@@ -84,7 +84,7 @@ func newGetCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&productID, "product-id", "", "One-time product ID (required)")
-	cmd.MarkFlagRequired("product-id")
+	_ = cmd.MarkFlagRequired("product-id")
 	return cmd
 }
 
@@ -155,7 +155,7 @@ func newUpdateCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&productID, "product-id", "", "One-time product ID (required)")
-	cmd.MarkFlagRequired("product-id")
+	_ = cmd.MarkFlagRequired("product-id")
 	return cmd
 }
 
@@ -185,7 +185,7 @@ func newDeleteCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&productID, "product-id", "", "One-time product ID (required)")
-	cmd.MarkFlagRequired("product-id")
+	_ = cmd.MarkFlagRequired("product-id")
 	return cmd
 }
 

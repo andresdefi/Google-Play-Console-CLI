@@ -65,14 +65,14 @@ func newListCmd() *cobra.Command {
 					}
 					t.Render()
 				} else {
-					fmt.Fprintln(w, string(raw))
+					_, _ = fmt.Fprintln(w, string(raw))
 				}
 			})
 			return nil
 		},
 	}
 	cmd.Flags().IntVar(&versionCode, "version-code", 0, "Version code (required)")
-	cmd.MarkFlagRequired("version-code")
+	_ = cmd.MarkFlagRequired("version-code")
 	return cmd
 }
 
@@ -108,8 +108,8 @@ func newGetCmd() *cobra.Command {
 	}
 	cmd.Flags().IntVar(&versionCode, "version-code", 0, "Version code (required)")
 	cmd.Flags().StringVar(&variantID, "variant-id", "", "Variant ID (required)")
-	cmd.MarkFlagRequired("version-code")
-	cmd.MarkFlagRequired("variant-id")
+	_ = cmd.MarkFlagRequired("version-code")
+	_ = cmd.MarkFlagRequired("variant-id")
 	return cmd
 }
 
@@ -147,7 +147,7 @@ func newCreateCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().IntVar(&versionCode, "version-code", 0, "Version code (required)")
-	cmd.MarkFlagRequired("version-code")
+	_ = cmd.MarkFlagRequired("version-code")
 	return cmd
 }
 
@@ -184,8 +184,8 @@ func newDownloadCmd() *cobra.Command {
 	cmd.Flags().IntVar(&versionCode, "version-code", 0, "Version code (required)")
 	cmd.Flags().StringVar(&variantID, "variant-id", "", "Variant ID (required)")
 	cmd.Flags().StringVar(&outputPath, "output", "", "Output file path (required)")
-	cmd.MarkFlagRequired("version-code")
-	cmd.MarkFlagRequired("variant-id")
-	cmd.MarkFlagRequired("output")
+	_ = cmd.MarkFlagRequired("version-code")
+	_ = cmd.MarkFlagRequired("variant-id")
+	_ = cmd.MarkFlagRequired("output")
 	return cmd
 }

@@ -132,7 +132,7 @@ func TestLogin_InvalidJSONKeyFile(t *testing.T) {
 	t.Setenv("HOME", tmp)
 
 	keyFile := filepath.Join(tmp, "bad-key.json")
-	os.WriteFile(keyFile, []byte("not valid json at all"), 0600)
+	_ = os.WriteFile(keyFile, []byte("not valid json at all"), 0600)
 
 	_, err := Login(keyFile)
 	if err == nil {
@@ -149,9 +149,9 @@ func TestGetToken_InvalidStoredCredentials(t *testing.T) {
 
 	// Write a config pointing to a key file with invalid content.
 	dir := filepath.Join(tmp, ".gpc")
-	os.MkdirAll(dir, 0700)
-	os.WriteFile(filepath.Join(dir, "config.json"), []byte(`{"key_file_path":"`+filepath.Join(tmp, "bad.json")+`"}`), 0600)
-	os.WriteFile(filepath.Join(tmp, "bad.json"), []byte("not json"), 0600)
+	_ = os.MkdirAll(dir, 0700)
+	_ = os.WriteFile(filepath.Join(dir, "config.json"), []byte(`{"key_file_path":"`+filepath.Join(tmp, "bad.json")+`"}`), 0600)
+	_ = os.WriteFile(filepath.Join(tmp, "bad.json"), []byte("not json"), 0600)
 
 	_, err := GetToken()
 	if err == nil {

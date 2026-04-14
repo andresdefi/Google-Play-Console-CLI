@@ -85,7 +85,7 @@ func newGetCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&txnID, "transaction-id", "", "External transaction ID (required)")
-	cmd.MarkFlagRequired("transaction-id")
+	_ = cmd.MarkFlagRequired("transaction-id")
 	return cmd
 }
 
@@ -123,6 +123,6 @@ func newRefundCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&txnID, "transaction-id", "", "External transaction ID (required)")
-	cmd.MarkFlagRequired("transaction-id")
+	_ = cmd.MarkFlagRequired("transaction-id")
 	return cmd
 }

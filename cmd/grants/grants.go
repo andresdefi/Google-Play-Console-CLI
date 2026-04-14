@@ -60,8 +60,8 @@ func newCreateCmd() *cobra.Command {
 	}
 	cmd.Flags().StringVar(&developerID, "developer-id", "", "Developer account ID (required)")
 	cmd.Flags().StringVar(&userID, "user-id", "", "User ID (required)")
-	cmd.MarkFlagRequired("developer-id")
-	cmd.MarkFlagRequired("user-id")
+	_ = cmd.MarkFlagRequired("developer-id")
+	_ = cmd.MarkFlagRequired("user-id")
 	return cmd
 }
 
@@ -104,7 +104,7 @@ func newUpdateCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&name, "name", "", "Resource name (developers/{devId}/users/{userId}/grants/{grantId}) (required)")
-	cmd.MarkFlagRequired("name")
+	_ = cmd.MarkFlagRequired("name")
 	return cmd
 }
 
@@ -140,6 +140,6 @@ func newDeleteCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&name, "name", "", "Resource name (developers/{devId}/users/{userId}/grants/{grantId}) (required)")
-	cmd.MarkFlagRequired("name")
+	_ = cmd.MarkFlagRequired("name")
 	return cmd
 }

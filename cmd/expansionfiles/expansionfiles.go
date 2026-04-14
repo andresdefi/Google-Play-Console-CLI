@@ -50,7 +50,7 @@ func newGetCmd() *cobra.Command {
 			if err != nil {
 				return exitcode.APIErrorExit("%v", err)
 			}
-			defer client.DeleteEdit(pkg, edit.ID)
+			defer func() { _ = client.DeleteEdit(pkg, edit.ID) }()
 
 			resp, err := client.Get(api.ExpansionFilesPath(pkg, edit.ID, apkVersion, fileType), nil)
 			if err != nil {
@@ -64,8 +64,8 @@ func newGetCmd() *cobra.Command {
 	}
 	cmd.Flags().IntVar(&apkVersion, "apk-version", 0, "APK version code (required)")
 	cmd.Flags().StringVar(&fileType, "type", "", "Expansion file type: main or patch (required)")
-	cmd.MarkFlagRequired("apk-version")
-	cmd.MarkFlagRequired("type")
+	_ = cmd.MarkFlagRequired("apk-version")
+	_ = cmd.MarkFlagRequired("type")
 	return cmd
 }
 
@@ -109,8 +109,8 @@ func newUpdateCmd() *cobra.Command {
 	}
 	cmd.Flags().IntVar(&apkVersion, "apk-version", 0, "APK version code (required)")
 	cmd.Flags().StringVar(&fileType, "type", "", "Expansion file type: main or patch (required)")
-	cmd.MarkFlagRequired("apk-version")
-	cmd.MarkFlagRequired("type")
+	_ = cmd.MarkFlagRequired("apk-version")
+	_ = cmd.MarkFlagRequired("type")
 	return cmd
 }
 
@@ -154,7 +154,7 @@ func newUploadCmd() *cobra.Command {
 	}
 	cmd.Flags().IntVar(&apkVersion, "apk-version", 0, "APK version code (required)")
 	cmd.Flags().StringVar(&fileType, "type", "", "Expansion file type: main or patch (required)")
-	cmd.MarkFlagRequired("apk-version")
-	cmd.MarkFlagRequired("type")
+	_ = cmd.MarkFlagRequired("apk-version")
+	_ = cmd.MarkFlagRequired("type")
 	return cmd
 }

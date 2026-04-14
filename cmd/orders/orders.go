@@ -54,7 +54,7 @@ func newGetCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&orderID, "order-id", "", "Order ID (required)")
-	cmd.MarkFlagRequired("order-id")
+	_ = cmd.MarkFlagRequired("order-id")
 	return cmd
 }
 
@@ -92,7 +92,7 @@ func newBatchGetCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&orderIDs, "order-ids", "", "Comma-separated list of order IDs (required)")
-	cmd.MarkFlagRequired("order-ids")
+	_ = cmd.MarkFlagRequired("order-ids")
 	return cmd
 }
 
@@ -123,6 +123,6 @@ func newRefundCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&orderID, "order-id", "", "Order ID (required)")
-	cmd.MarkFlagRequired("order-id")
+	_ = cmd.MarkFlagRequired("order-id")
 	return cmd
 }

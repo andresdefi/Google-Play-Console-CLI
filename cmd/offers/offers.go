@@ -63,8 +63,8 @@ func newListCmd() *cobra.Command {
 	}
 	cmd.Flags().StringVar(&productID, "product-id", "", "Subscription product ID (required)")
 	cmd.Flags().StringVar(&basePlanID, "base-plan-id", "", "Base plan ID (required)")
-	cmd.MarkFlagRequired("product-id")
-	cmd.MarkFlagRequired("base-plan-id")
+	_ = cmd.MarkFlagRequired("product-id")
+	_ = cmd.MarkFlagRequired("base-plan-id")
 	return cmd
 }
 
@@ -102,9 +102,9 @@ func newGetCmd() *cobra.Command {
 	cmd.Flags().StringVar(&productID, "product-id", "", "Subscription product ID (required)")
 	cmd.Flags().StringVar(&basePlanID, "base-plan-id", "", "Base plan ID (required)")
 	cmd.Flags().StringVar(&offerID, "offer-id", "", "Offer ID (required)")
-	cmd.MarkFlagRequired("product-id")
-	cmd.MarkFlagRequired("base-plan-id")
-	cmd.MarkFlagRequired("offer-id")
+	_ = cmd.MarkFlagRequired("product-id")
+	_ = cmd.MarkFlagRequired("base-plan-id")
+	_ = cmd.MarkFlagRequired("offer-id")
 	return cmd
 }
 
@@ -146,8 +146,8 @@ func newCreateCmd() *cobra.Command {
 	}
 	cmd.Flags().StringVar(&productID, "product-id", "", "Subscription product ID (required)")
 	cmd.Flags().StringVar(&basePlanID, "base-plan-id", "", "Base plan ID (required)")
-	cmd.MarkFlagRequired("product-id")
-	cmd.MarkFlagRequired("base-plan-id")
+	_ = cmd.MarkFlagRequired("product-id")
+	_ = cmd.MarkFlagRequired("base-plan-id")
 	return cmd
 }
 
@@ -191,9 +191,9 @@ func newUpdateCmd() *cobra.Command {
 	cmd.Flags().StringVar(&productID, "product-id", "", "Subscription product ID (required)")
 	cmd.Flags().StringVar(&basePlanID, "base-plan-id", "", "Base plan ID (required)")
 	cmd.Flags().StringVar(&offerID, "offer-id", "", "Offer ID (required)")
-	cmd.MarkFlagRequired("product-id")
-	cmd.MarkFlagRequired("base-plan-id")
-	cmd.MarkFlagRequired("offer-id")
+	_ = cmd.MarkFlagRequired("product-id")
+	_ = cmd.MarkFlagRequired("base-plan-id")
+	_ = cmd.MarkFlagRequired("offer-id")
 	return cmd
 }
 
@@ -229,9 +229,9 @@ func newDeleteCmd() *cobra.Command {
 	cmd.Flags().StringVar(&productID, "product-id", "", "Subscription product ID (required)")
 	cmd.Flags().StringVar(&basePlanID, "base-plan-id", "", "Base plan ID (required)")
 	cmd.Flags().StringVar(&offerID, "offer-id", "", "Offer ID (required)")
-	cmd.MarkFlagRequired("product-id")
-	cmd.MarkFlagRequired("base-plan-id")
-	cmd.MarkFlagRequired("offer-id")
+	_ = cmd.MarkFlagRequired("product-id")
+	_ = cmd.MarkFlagRequired("base-plan-id")
+	_ = cmd.MarkFlagRequired("offer-id")
 	return cmd
 }
 
@@ -268,9 +268,9 @@ func newActivateCmd() *cobra.Command {
 	cmd.Flags().StringVar(&productID, "product-id", "", "Subscription product ID (required)")
 	cmd.Flags().StringVar(&basePlanID, "base-plan-id", "", "Base plan ID (required)")
 	cmd.Flags().StringVar(&offerID, "offer-id", "", "Offer ID (required)")
-	cmd.MarkFlagRequired("product-id")
-	cmd.MarkFlagRequired("base-plan-id")
-	cmd.MarkFlagRequired("offer-id")
+	_ = cmd.MarkFlagRequired("product-id")
+	_ = cmd.MarkFlagRequired("base-plan-id")
+	_ = cmd.MarkFlagRequired("offer-id")
 	return cmd
 }
 
@@ -307,9 +307,9 @@ func newDeactivateCmd() *cobra.Command {
 	cmd.Flags().StringVar(&productID, "product-id", "", "Subscription product ID (required)")
 	cmd.Flags().StringVar(&basePlanID, "base-plan-id", "", "Base plan ID (required)")
 	cmd.Flags().StringVar(&offerID, "offer-id", "", "Offer ID (required)")
-	cmd.MarkFlagRequired("product-id")
-	cmd.MarkFlagRequired("base-plan-id")
-	cmd.MarkFlagRequired("offer-id")
+	_ = cmd.MarkFlagRequired("product-id")
+	_ = cmd.MarkFlagRequired("base-plan-id")
+	_ = cmd.MarkFlagRequired("offer-id")
 	return cmd
 }
 
@@ -351,8 +351,8 @@ func newBatchGetCmd() *cobra.Command {
 	}
 	cmd.Flags().StringVar(&productID, "product-id", "", "Subscription product ID (required)")
 	cmd.Flags().StringVar(&basePlanID, "base-plan-id", "", "Base plan ID (required)")
-	cmd.MarkFlagRequired("product-id")
-	cmd.MarkFlagRequired("base-plan-id")
+	_ = cmd.MarkFlagRequired("product-id")
+	_ = cmd.MarkFlagRequired("base-plan-id")
 	return cmd
 }
 
@@ -394,8 +394,8 @@ func newBatchUpdateCmd() *cobra.Command {
 	}
 	cmd.Flags().StringVar(&productID, "product-id", "", "Subscription product ID (required)")
 	cmd.Flags().StringVar(&basePlanID, "base-plan-id", "", "Base plan ID (required)")
-	cmd.MarkFlagRequired("product-id")
-	cmd.MarkFlagRequired("base-plan-id")
+	_ = cmd.MarkFlagRequired("product-id")
+	_ = cmd.MarkFlagRequired("base-plan-id")
 	return cmd
 }
 
@@ -437,7 +437,7 @@ func newBatchUpdateStatesCmd() *cobra.Command {
 	}
 	cmd.Flags().StringVar(&productID, "product-id", "", "Subscription product ID (required)")
 	cmd.Flags().StringVar(&basePlanID, "base-plan-id", "", "Base plan ID (required)")
-	cmd.MarkFlagRequired("product-id")
-	cmd.MarkFlagRequired("base-plan-id")
+	_ = cmd.MarkFlagRequired("product-id")
+	_ = cmd.MarkFlagRequired("base-plan-id")
 	return cmd
 }

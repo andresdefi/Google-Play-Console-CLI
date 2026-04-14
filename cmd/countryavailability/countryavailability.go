@@ -45,7 +45,7 @@ func newGetCmd() *cobra.Command {
 			if err != nil {
 				return exitcode.APIErrorExit("%v", err)
 			}
-			defer client.DeleteEdit(pkg, edit.ID)
+			defer func() { _ = client.DeleteEdit(pkg, edit.ID) }()
 
 			resp, err := client.Get(api.CountryAvailabilityPath(pkg, edit.ID, track), nil)
 			if err != nil {
@@ -67,13 +67,13 @@ func newGetCmd() *cobra.Command {
 					}
 					t.Render()
 				} else {
-					fmt.Fprintln(w, string(raw))
+					_, _ = fmt.Fprintln(w, string(raw))
 				}
 			})
 			return nil
 		},
 	}
 	cmd.Flags().StringVar(&track, "track", "", "Track name (required)")
-	cmd.MarkFlagRequired("track")
+	_ = cmd.MarkFlagRequired("track")
 	return cmd
 }

@@ -69,7 +69,7 @@ func TestPrintJSON_Map(t *testing.T) {
 	data := map[string]string{"key": "value"}
 	err := PrintJSON(data)
 
-	w.Close()
+	_ = w.Close()
 	os.Stdout = oldStdout
 
 	if err != nil {
@@ -97,7 +97,7 @@ func TestPrintJSON_Struct(t *testing.T) {
 	}
 	err := PrintJSON(Item{Name: "test", Count: 5})
 
-	w.Close()
+	_ = w.Close()
 	os.Stdout = oldStdout
 
 	if err != nil {
@@ -106,7 +106,7 @@ func TestPrintJSON_Struct(t *testing.T) {
 
 	out, _ := io.ReadAll(r)
 	var item Item
-	json.Unmarshal(out, &item)
+	_ = json.Unmarshal(out, &item)
 	if item.Name != "test" || item.Count != 5 {
 		t.Errorf("unexpected output: %s", out)
 	}
@@ -119,7 +119,7 @@ func TestPrintJSON_Array(t *testing.T) {
 
 	err := PrintJSON([]int{1, 2, 3})
 
-	w.Close()
+	_ = w.Close()
 	os.Stdout = oldStdout
 
 	if err != nil {
@@ -128,7 +128,7 @@ func TestPrintJSON_Array(t *testing.T) {
 
 	out, _ := io.ReadAll(r)
 	var arr []int
-	json.Unmarshal(out, &arr)
+	_ = json.Unmarshal(out, &arr)
 	if len(arr) != 3 {
 		t.Errorf("expected 3 elements, got %d", len(arr))
 	}
@@ -141,7 +141,7 @@ func TestPrintJSON_Nil(t *testing.T) {
 
 	err := PrintJSON(nil)
 
-	w.Close()
+	_ = w.Close()
 	os.Stdout = oldStdout
 
 	if err != nil {
@@ -195,7 +195,7 @@ func TestPrint_JSON_Format(t *testing.T) {
 
 	Print(FormatJSON, map[string]string{"a": "b"}, nil)
 
-	w.Close()
+	_ = w.Close()
 	os.Stdout = oldStdout
 
 	out, _ := io.ReadAll(r)
@@ -210,10 +210,10 @@ func TestPrint_Table_Format(t *testing.T) {
 	os.Stdout = w
 
 	Print(FormatTable, "data", func(wr io.Writer, data any) {
-		wr.Write([]byte("TABLE_OUTPUT"))
+		_, _ = wr.Write([]byte("TABLE_OUTPUT"))
 	})
 
-	w.Close()
+	_ = w.Close()
 	os.Stdout = oldStdout
 
 	out, _ := io.ReadAll(r)
@@ -229,7 +229,7 @@ func TestPrint_Table_NilRenderer_FallsBackToJSON(t *testing.T) {
 
 	Print(FormatTable, map[string]string{"x": "y"}, nil)
 
-	w.Close()
+	_ = w.Close()
 	os.Stdout = oldStdout
 
 	out, _ := io.ReadAll(r)
@@ -247,7 +247,7 @@ func TestSuccess_WritesToStderr(t *testing.T) {
 
 	Success("all good")
 
-	w.Close()
+	_ = w.Close()
 	os.Stderr = oldStderr
 
 	out, _ := io.ReadAll(r)
@@ -263,7 +263,7 @@ func TestWarn_WritesToStderr(t *testing.T) {
 
 	Warn("watch out")
 
-	w.Close()
+	_ = w.Close()
 	os.Stderr = oldStderr
 
 	out, _ := io.ReadAll(r)
@@ -279,7 +279,7 @@ func TestErrorf_WritesToStderr(t *testing.T) {
 
 	Errorf("something %s", "failed")
 
-	w.Close()
+	_ = w.Close()
 	os.Stderr = oldStderr
 
 	out, _ := io.ReadAll(r)

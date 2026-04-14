@@ -61,7 +61,7 @@ func newListTierConfigsCmd() *cobra.Command {
 					}
 					t.Render()
 				} else {
-					fmt.Fprintln(w, string(raw))
+					_, _ = fmt.Fprintln(w, string(raw))
 				}
 			})
 			return nil
@@ -97,7 +97,7 @@ func newGetTierConfigCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&configID, "config-id", "", "Device tier config ID (required)")
-	cmd.MarkFlagRequired("config-id")
+	_ = cmd.MarkFlagRequired("config-id")
 	return cmd
 }
 

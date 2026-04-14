@@ -85,7 +85,7 @@ func newGetCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&sku, "sku", "", "In-app product SKU (required)")
-	cmd.MarkFlagRequired("sku")
+	_ = cmd.MarkFlagRequired("sku")
 	return cmd
 }
 
@@ -156,7 +156,7 @@ func newUpdateCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&sku, "sku", "", "In-app product SKU (required)")
-	cmd.MarkFlagRequired("sku")
+	_ = cmd.MarkFlagRequired("sku")
 	return cmd
 }
 
@@ -186,7 +186,7 @@ func newDeleteCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&sku, "sku", "", "In-app product SKU (required)")
-	cmd.MarkFlagRequired("sku")
+	_ = cmd.MarkFlagRequired("sku")
 	return cmd
 }
 
@@ -224,7 +224,7 @@ func newBatchGetCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&skus, "skus", "", "Comma-separated list of SKUs (required)")
-	cmd.MarkFlagRequired("skus")
+	_ = cmd.MarkFlagRequired("skus")
 	return cmd
 }
 

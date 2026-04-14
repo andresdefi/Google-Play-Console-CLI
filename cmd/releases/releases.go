@@ -52,7 +52,7 @@ func newListCmd() *cobra.Command {
 			if err != nil {
 				return exitcode.APIErrorExit("%v", err)
 			}
-			defer client.DeleteEdit(pkg, edit.ID)
+			defer func() { _ = client.DeleteEdit(pkg, edit.ID) }()
 
 			resp, err := client.Get(api.TrackPath(pkg, edit.ID, trackName), nil)
 			if err != nil {
@@ -83,7 +83,7 @@ func newListCmd() *cobra.Command {
 					}
 					tbl.Render()
 				} else {
-					fmt.Fprintln(w, string(raw))
+					_, _ = fmt.Fprintln(w, string(raw))
 				}
 			})
 			return nil
@@ -287,8 +287,8 @@ func newPromoteCmd() *cobra.Command {
 
 	cmd.Flags().StringVar(&fromTrack, "from", "", "Source track (required)")
 	cmd.Flags().StringVar(&toTrack, "to", "", "Target track (required)")
-	cmd.MarkFlagRequired("from")
-	cmd.MarkFlagRequired("to")
+	_ = cmd.MarkFlagRequired("from")
+	_ = cmd.MarkFlagRequired("to")
 	return cmd
 }
 
@@ -357,7 +357,7 @@ func newRolloutCmd() *cobra.Command {
 
 	cmd.Flags().StringVar(&trackName, "track", "production", "Track name")
 	cmd.Flags().Float64Var(&fraction, "fraction", 0, "Rollout fraction 0.0-1.0 (required)")
-	cmd.MarkFlagRequired("fraction")
+	_ = cmd.MarkFlagRequired("fraction")
 	return cmd
 }
 

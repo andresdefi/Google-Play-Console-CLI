@@ -61,8 +61,8 @@ func newListCmd() *cobra.Command {
 	}
 	cmd.Flags().StringVar(&productID, "product-id", "", "One-time product ID (required)")
 	cmd.Flags().StringVar(&purchaseOptionID, "purchase-option-id", "", "Purchase option ID (required)")
-	cmd.MarkFlagRequired("product-id")
-	cmd.MarkFlagRequired("purchase-option-id")
+	_ = cmd.MarkFlagRequired("product-id")
+	_ = cmd.MarkFlagRequired("purchase-option-id")
 	return cmd
 }
 
@@ -99,9 +99,9 @@ func newActivateCmd() *cobra.Command {
 	cmd.Flags().StringVar(&productID, "product-id", "", "One-time product ID (required)")
 	cmd.Flags().StringVar(&purchaseOptionID, "purchase-option-id", "", "Purchase option ID (required)")
 	cmd.Flags().StringVar(&offerID, "offer-id", "", "Offer ID (required)")
-	cmd.MarkFlagRequired("product-id")
-	cmd.MarkFlagRequired("purchase-option-id")
-	cmd.MarkFlagRequired("offer-id")
+	_ = cmd.MarkFlagRequired("product-id")
+	_ = cmd.MarkFlagRequired("purchase-option-id")
+	_ = cmd.MarkFlagRequired("offer-id")
 	return cmd
 }
 
@@ -138,9 +138,9 @@ func newDeactivateCmd() *cobra.Command {
 	cmd.Flags().StringVar(&productID, "product-id", "", "One-time product ID (required)")
 	cmd.Flags().StringVar(&purchaseOptionID, "purchase-option-id", "", "Purchase option ID (required)")
 	cmd.Flags().StringVar(&offerID, "offer-id", "", "Offer ID (required)")
-	cmd.MarkFlagRequired("product-id")
-	cmd.MarkFlagRequired("purchase-option-id")
-	cmd.MarkFlagRequired("offer-id")
+	_ = cmd.MarkFlagRequired("product-id")
+	_ = cmd.MarkFlagRequired("purchase-option-id")
+	_ = cmd.MarkFlagRequired("offer-id")
 	return cmd
 }
 
@@ -177,9 +177,9 @@ func newCancelCmd() *cobra.Command {
 	cmd.Flags().StringVar(&productID, "product-id", "", "One-time product ID (required)")
 	cmd.Flags().StringVar(&purchaseOptionID, "purchase-option-id", "", "Purchase option ID (required)")
 	cmd.Flags().StringVar(&offerID, "offer-id", "", "Offer ID (required)")
-	cmd.MarkFlagRequired("product-id")
-	cmd.MarkFlagRequired("purchase-option-id")
-	cmd.MarkFlagRequired("offer-id")
+	_ = cmd.MarkFlagRequired("product-id")
+	_ = cmd.MarkFlagRequired("purchase-option-id")
+	_ = cmd.MarkFlagRequired("offer-id")
 	return cmd
 }
 
@@ -221,8 +221,8 @@ func newBatchGetCmd() *cobra.Command {
 	}
 	cmd.Flags().StringVar(&productID, "product-id", "", "One-time product ID (required)")
 	cmd.Flags().StringVar(&purchaseOptionID, "purchase-option-id", "", "Purchase option ID (required)")
-	cmd.MarkFlagRequired("product-id")
-	cmd.MarkFlagRequired("purchase-option-id")
+	_ = cmd.MarkFlagRequired("product-id")
+	_ = cmd.MarkFlagRequired("purchase-option-id")
 	return cmd
 }
 
@@ -264,8 +264,8 @@ func newBatchUpdateCmd() *cobra.Command {
 	}
 	cmd.Flags().StringVar(&productID, "product-id", "", "One-time product ID (required)")
 	cmd.Flags().StringVar(&purchaseOptionID, "purchase-option-id", "", "Purchase option ID (required)")
-	cmd.MarkFlagRequired("product-id")
-	cmd.MarkFlagRequired("purchase-option-id")
+	_ = cmd.MarkFlagRequired("product-id")
+	_ = cmd.MarkFlagRequired("purchase-option-id")
 	return cmd
 }
 
@@ -307,8 +307,8 @@ func newBatchDeleteCmd() *cobra.Command {
 	}
 	cmd.Flags().StringVar(&productID, "product-id", "", "One-time product ID (required)")
 	cmd.Flags().StringVar(&purchaseOptionID, "purchase-option-id", "", "Purchase option ID (required)")
-	cmd.MarkFlagRequired("product-id")
-	cmd.MarkFlagRequired("purchase-option-id")
+	_ = cmd.MarkFlagRequired("product-id")
+	_ = cmd.MarkFlagRequired("purchase-option-id")
 	return cmd
 }
 
@@ -350,7 +350,7 @@ func newBatchUpdateStatesCmd() *cobra.Command {
 	}
 	cmd.Flags().StringVar(&productID, "product-id", "", "One-time product ID (required)")
 	cmd.Flags().StringVar(&purchaseOptionID, "purchase-option-id", "", "Purchase option ID (required)")
-	cmd.MarkFlagRequired("product-id")
-	cmd.MarkFlagRequired("purchase-option-id")
+	_ = cmd.MarkFlagRequired("product-id")
+	_ = cmd.MarkFlagRequired("purchase-option-id")
 	return cmd
 }

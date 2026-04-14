@@ -43,7 +43,7 @@ func newGetCmd() *cobra.Command {
 			if err != nil {
 				return exitcode.APIErrorExit("could not create edit: %v", err)
 			}
-			defer client.DeleteEdit(pkg, edit.ID)
+			defer func() { _ = client.DeleteEdit(pkg, edit.ID) }()
 
 			resp, err := client.Get(api.DetailsPath(pkg, edit.ID), nil)
 			if err != nil {
@@ -67,7 +67,7 @@ func newGetCmd() *cobra.Command {
 					t.AppendRow([]any{"Contact Website", d.ContactWebsite})
 					t.Render()
 				} else {
-					fmt.Fprintln(w, string(data.(json.RawMessage)))
+					_, _ = fmt.Fprintln(w, string(data.(json.RawMessage)))
 				}
 			})
 			return nil

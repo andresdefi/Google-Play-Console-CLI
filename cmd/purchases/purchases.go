@@ -74,8 +74,8 @@ func newProductsGetCmd() *cobra.Command {
 	}
 	cmd.Flags().StringVar(&productID, "product-id", "", "Product ID (required)")
 	cmd.Flags().StringVar(&tok, "token", "", "Purchase token (required)")
-	cmd.MarkFlagRequired("product-id")
-	cmd.MarkFlagRequired("token")
+	_ = cmd.MarkFlagRequired("product-id")
+	_ = cmd.MarkFlagRequired("token")
 	return cmd
 }
 
@@ -110,8 +110,8 @@ func newProductsAcknowledgeCmd() *cobra.Command {
 	}
 	cmd.Flags().StringVar(&productID, "product-id", "", "Product ID (required)")
 	cmd.Flags().StringVar(&tok, "token", "", "Purchase token (required)")
-	cmd.MarkFlagRequired("product-id")
-	cmd.MarkFlagRequired("token")
+	_ = cmd.MarkFlagRequired("product-id")
+	_ = cmd.MarkFlagRequired("token")
 	return cmd
 }
 
@@ -146,8 +146,8 @@ func newProductsConsumeCmd() *cobra.Command {
 	}
 	cmd.Flags().StringVar(&productID, "product-id", "", "Product ID (required)")
 	cmd.Flags().StringVar(&tok, "token", "", "Purchase token (required)")
-	cmd.MarkFlagRequired("product-id")
-	cmd.MarkFlagRequired("token")
+	_ = cmd.MarkFlagRequired("product-id")
+	_ = cmd.MarkFlagRequired("token")
 	return cmd
 }
 
@@ -191,7 +191,7 @@ func newProductsV2GetCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&tok, "token", "", "Purchase token (required)")
-	cmd.MarkFlagRequired("token")
+	_ = cmd.MarkFlagRequired("token")
 	return cmd
 }
 
@@ -242,8 +242,8 @@ func newSubscriptionsGetCmd() *cobra.Command {
 	}
 	cmd.Flags().StringVar(&subscriptionID, "subscription-id", "", "Subscription ID (required)")
 	cmd.Flags().StringVar(&tok, "token", "", "Purchase token (required)")
-	cmd.MarkFlagRequired("subscription-id")
-	cmd.MarkFlagRequired("token")
+	_ = cmd.MarkFlagRequired("subscription-id")
+	_ = cmd.MarkFlagRequired("token")
 	return cmd
 }
 
@@ -278,8 +278,8 @@ func newSubscriptionsAcknowledgeCmd() *cobra.Command {
 	}
 	cmd.Flags().StringVar(&subscriptionID, "subscription-id", "", "Subscription ID (required)")
 	cmd.Flags().StringVar(&tok, "token", "", "Purchase token (required)")
-	cmd.MarkFlagRequired("subscription-id")
-	cmd.MarkFlagRequired("token")
+	_ = cmd.MarkFlagRequired("subscription-id")
+	_ = cmd.MarkFlagRequired("token")
 	return cmd
 }
 
@@ -314,8 +314,8 @@ func newSubscriptionsCancelCmd() *cobra.Command {
 	}
 	cmd.Flags().StringVar(&subscriptionID, "subscription-id", "", "Subscription ID (required)")
 	cmd.Flags().StringVar(&tok, "token", "", "Purchase token (required)")
-	cmd.MarkFlagRequired("subscription-id")
-	cmd.MarkFlagRequired("token")
+	_ = cmd.MarkFlagRequired("subscription-id")
+	_ = cmd.MarkFlagRequired("token")
 	return cmd
 }
 
@@ -357,8 +357,8 @@ func newSubscriptionsDeferCmd() *cobra.Command {
 	}
 	cmd.Flags().StringVar(&subscriptionID, "subscription-id", "", "Subscription ID (required)")
 	cmd.Flags().StringVar(&tok, "token", "", "Purchase token (required)")
-	cmd.MarkFlagRequired("subscription-id")
-	cmd.MarkFlagRequired("token")
+	_ = cmd.MarkFlagRequired("subscription-id")
+	_ = cmd.MarkFlagRequired("token")
 	return cmd
 }
 
@@ -405,7 +405,7 @@ func newSubscriptionsV2GetCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&tok, "token", "", "Purchase token (required)")
-	cmd.MarkFlagRequired("token")
+	_ = cmd.MarkFlagRequired("token")
 	return cmd
 }
 
@@ -436,7 +436,7 @@ func newSubscriptionsV2CancelCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&tok, "token", "", "Purchase token (required)")
-	cmd.MarkFlagRequired("token")
+	_ = cmd.MarkFlagRequired("token")
 	return cmd
 }
 
@@ -474,7 +474,7 @@ func newSubscriptionsV2DeferCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&tok, "token", "", "Purchase token (required)")
-	cmd.MarkFlagRequired("token")
+	_ = cmd.MarkFlagRequired("token")
 	return cmd
 }
 
@@ -512,7 +512,7 @@ func newSubscriptionsV2RevokeCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&tok, "token", "", "Purchase token (required)")
-	cmd.MarkFlagRequired("token")
+	_ = cmd.MarkFlagRequired("token")
 	return cmd
 }
 
@@ -593,7 +593,7 @@ func newVoidedListCmd() *cobra.Command {
 					}
 					t.Render()
 				} else {
-					fmt.Fprintln(w, string(raw))
+					_, _ = fmt.Fprintln(w, string(raw))
 				}
 			})
 			return nil

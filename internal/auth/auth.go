@@ -34,7 +34,7 @@ func Login(keyFilePath string) (*ServiceAccountInfo, error) {
 	}
 
 	// Validate the key file by attempting to create credentials.
-	creds, err := google.CredentialsFromJSON(context.Background(), data, androidPublisherScope)
+	creds, err := google.CredentialsFromJSONWithType(context.Background(), data, google.ServiceAccount, androidPublisherScope)
 	if err != nil {
 		return nil, fmt.Errorf("invalid service account key file: %w", err)
 	}
@@ -77,7 +77,7 @@ func GetToken() (string, error) {
 		return "", err
 	}
 
-	creds, err := google.CredentialsFromJSON(context.Background(), data, androidPublisherScope)
+	creds, err := google.CredentialsFromJSONWithType(context.Background(), data, google.ServiceAccount, androidPublisherScope)
 	if err != nil {
 		return "", fmt.Errorf("invalid stored credentials: %w", err)
 	}

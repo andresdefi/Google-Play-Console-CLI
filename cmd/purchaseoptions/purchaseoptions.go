@@ -56,7 +56,7 @@ func newBatchDeleteCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&productID, "product-id", "", "One-time product ID (required)")
-	cmd.MarkFlagRequired("product-id")
+	_ = cmd.MarkFlagRequired("product-id")
 	return cmd
 }
 
@@ -94,6 +94,6 @@ func newBatchUpdateStatesCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().StringVar(&productID, "product-id", "", "One-time product ID (required)")
-	cmd.MarkFlagRequired("product-id")
+	_ = cmd.MarkFlagRequired("product-id")
 	return cmd
 }
