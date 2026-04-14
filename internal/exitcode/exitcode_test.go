@@ -25,30 +25,50 @@ func TestFromHTTPStatus_403(t *testing.T) {
 }
 
 func TestFromHTTPStatus_404(t *testing.T) {
-	if got := FromHTTPStatus(404); got != API {
-		t.Errorf("FromHTTPStatus(404) = %d, want %d (API)", got, API)
+	if got := FromHTTPStatus(404); got != NotFound {
+		t.Errorf("FromHTTPStatus(404) = %d, want %d (NotFound)", got, NotFound)
 	}
 }
 
 func TestFromHTTPStatus_409(t *testing.T) {
-	if got := FromHTTPStatus(409); got != API {
-		t.Errorf("FromHTTPStatus(409) = %d, want %d (API)", got, API)
+	if got := FromHTTPStatus(409); got != Conflict {
+		t.Errorf("FromHTTPStatus(409) = %d, want %d (Conflict)", got, Conflict)
 	}
 }
 
-func TestFromHTTPStatus_4xx(t *testing.T) {
-	for _, code := range []int{400, 422, 429, 451} {
-		if got := FromHTTPStatus(code); got != API {
-			t.Errorf("FromHTTPStatus(%d) = %d, want %d (API)", code, got, API)
-		}
+func TestFromHTTPStatus_400_BadRequest(t *testing.T) {
+	if got := FromHTTPStatus(400); got != 10 {
+		t.Errorf("FromHTTPStatus(400) = %d, want 10", got)
 	}
 }
 
-func TestFromHTTPStatus_5xx(t *testing.T) {
-	for _, code := range []int{500, 502, 503, 504} {
-		if got := FromHTTPStatus(code); got != API {
-			t.Errorf("FromHTTPStatus(%d) = %d, want %d (API)", code, got, API)
-		}
+func TestFromHTTPStatus_422_Unprocessable(t *testing.T) {
+	if got := FromHTTPStatus(422); got != 32 {
+		t.Errorf("FromHTTPStatus(422) = %d, want 32", got)
+	}
+}
+
+func TestFromHTTPStatus_429_TooManyRequests(t *testing.T) {
+	if got := FromHTTPStatus(429); got != 39 {
+		t.Errorf("FromHTTPStatus(429) = %d, want 39", got)
+	}
+}
+
+func TestFromHTTPStatus_500_Internal(t *testing.T) {
+	if got := FromHTTPStatus(500); got != 60 {
+		t.Errorf("FromHTTPStatus(500) = %d, want 60", got)
+	}
+}
+
+func TestFromHTTPStatus_502_BadGateway(t *testing.T) {
+	if got := FromHTTPStatus(502); got != 62 {
+		t.Errorf("FromHTTPStatus(502) = %d, want 62", got)
+	}
+}
+
+func TestFromHTTPStatus_503_ServiceUnavailable(t *testing.T) {
+	if got := FromHTTPStatus(503); got != 63 {
+		t.Errorf("FromHTTPStatus(503) = %d, want 63", got)
 	}
 }
 
@@ -57,6 +77,30 @@ func TestFromHTTPStatus_Unknown(t *testing.T) {
 		if got := FromHTTPStatus(code); got != Error {
 			t.Errorf("FromHTTPStatus(%d) = %d, want %d (Error)", code, got, Error)
 		}
+	}
+}
+
+func TestExitCode_NotFound_Constant(t *testing.T) {
+	if NotFound != 4 {
+		t.Errorf("NotFound should be 4, got %d", NotFound)
+	}
+}
+
+func TestExitCode_Conflict_Constant(t *testing.T) {
+	if Conflict != 5 {
+		t.Errorf("Conflict should be 5, got %d", Conflict)
+	}
+}
+
+func TestExitCode_Config_Constant(t *testing.T) {
+	if Config != 6 {
+		t.Errorf("Config should be 6, got %d", Config)
+	}
+}
+
+func TestExitCode_API_Alias(t *testing.T) {
+	if API != NotFound {
+		t.Errorf("API should equal NotFound (%d), got %d", NotFound, API)
 	}
 }
 
@@ -120,11 +164,14 @@ func TestExitCode_Constants(t *testing.T) {
 	if Auth != 3 {
 		t.Errorf("Auth should be 3, got %d", Auth)
 	}
-	if API != 4 {
-		t.Errorf("API should be 4, got %d", API)
+	if NotFound != 4 {
+		t.Errorf("NotFound should be 4, got %d", NotFound)
 	}
-	if Config != 5 {
-		t.Errorf("Config should be 5, got %d", Config)
+	if Conflict != 5 {
+		t.Errorf("Conflict should be 5, got %d", Conflict)
+	}
+	if Config != 6 {
+		t.Errorf("Config should be 6, got %d", Config)
 	}
 }
 

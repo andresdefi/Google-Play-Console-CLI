@@ -87,11 +87,23 @@ func PrintCSV(headers []string, rows [][]string) error {
 	return w.Error()
 }
 
+// NoColor returns true if color output should be disabled.
+// Respects the NO_COLOR environment variable (https://no-color.org/).
+func NoColor() bool {
+	_, ok := os.LookupEnv("NO_COLOR")
+	return ok
+}
+
 // NewTable creates a new table writer configured for terminal output.
+// Respects NO_COLOR to disable styling.
 func NewTable(w io.Writer, headers ...string) table.Writer {
 	t := table.NewWriter()
 	t.SetOutputMirror(w)
-	t.SetStyle(table.StyleLight)
+	if NoColor() {
+		t.SetStyle(table.Style{})
+	} else {
+		t.SetStyle(table.StyleLight)
+	}
 
 	row := make(table.Row, len(headers))
 	for i, h := range headers {

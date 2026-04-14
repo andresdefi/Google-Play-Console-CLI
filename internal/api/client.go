@@ -195,9 +195,15 @@ func (c *Client) doWithParams(method, path string, params map[string]string, bod
 	var respBody json.RawMessage
 	var lastErr error
 
+	var retryAfter time.Duration
+
 	for attempt := 0; attempt <= maxRetries; attempt++ {
 		if attempt > 0 {
 			backoff := baseBackoff * time.Duration(1<<uint(attempt-1))
+			if retryAfter > 0 {
+				backoff = retryAfter
+				retryAfter = 0
+			}
 			time.Sleep(backoff)
 		}
 
@@ -254,6 +260,8 @@ func (c *Client) doWithParams(method, path string, params map[string]string, bod
 		if resp.StatusCode >= 400 {
 			apiErr := parseAPIError(resp.StatusCode, data)
 			if isRetryable(resp.StatusCode) && attempt < maxRetries {
+				// Respect Retry-After header if present.
+				retryAfter = parseRetryAfter(resp.Header.Get("Retry-After"))
 				lastErr = apiErr
 				continue
 			}
@@ -283,6 +291,21 @@ func parseAPIError(statusCode int, body []byte) *APIError {
 
 func isRetryable(statusCode int) bool {
 	return statusCode == 429 || statusCode == 500 || statusCode == 502 || statusCode == 503 || statusCode == 504
+}
+
+// parseRetryAfter parses the Retry-After header value (seconds).
+func parseRetryAfter(value string) time.Duration {
+	if value == "" {
+		return 0
+	}
+	seconds, err := strconv.Atoi(strings.TrimSpace(value))
+	if err != nil || seconds <= 0 {
+		return 0
+	}
+	if seconds > 60 {
+		seconds = 60 // Cap at 60 seconds.
+	}
+	return time.Duration(seconds) * time.Second
 }
 
 // --- Convenience path builders ---

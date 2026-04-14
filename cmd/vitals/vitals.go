@@ -21,7 +21,7 @@ const reportingBaseURL = "https://playdeveloperreporting.googleapis.com/v1beta1"
 func NewCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "vitals",
-		Short: "App vitals and quality metrics",
+		Short: "[beta] App vitals and quality metrics",
 		Long: `View crash rates, ANR rates, startup performance, and other quality
 metrics from the Play Developer Reporting API.
 

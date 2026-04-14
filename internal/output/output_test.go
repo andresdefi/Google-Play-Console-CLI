@@ -435,3 +435,40 @@ func TestPrintWithCSV_FallsBackToJSON(t *testing.T) {
 		t.Errorf("expected JSON output, got: %s", out)
 	}
 }
+
+// --- NoColor ---
+
+func TestNoColor_NotSet(t *testing.T) {
+	// t.Setenv will restore the original value after the test.
+	// We need to actually unset it, not set to empty.
+	_ = os.Unsetenv("NO_COLOR")
+	if NoColor() {
+		t.Error("expected NoColor() to return false when NO_COLOR is not set")
+	}
+}
+
+func TestNoColor_Set(t *testing.T) {
+	t.Setenv("NO_COLOR", "")
+	if !NoColor() {
+		t.Error("expected NoColor() to return true when NO_COLOR is set to empty string")
+	}
+}
+
+func TestNoColor_SetWithValue(t *testing.T) {
+	t.Setenv("NO_COLOR", "1")
+	if !NoColor() {
+		t.Error("expected NoColor() to return true when NO_COLOR is set to '1'")
+	}
+}
+
+func TestNewTable_NoColor(t *testing.T) {
+	t.Setenv("NO_COLOR", "1")
+	var buf bytes.Buffer
+	tw := NewTable(&buf, "Col1", "Col2")
+	tw.AppendRow([]interface{}{"val1", "val2"})
+	tw.Render()
+	// Just verify no panic and some output is produced.
+	if buf.Len() == 0 {
+		t.Error("expected non-empty table output with NO_COLOR set")
+	}
+}

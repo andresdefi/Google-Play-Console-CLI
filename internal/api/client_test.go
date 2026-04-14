@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 )
 
 // --- Client creation ---
@@ -895,6 +896,80 @@ func TestSystemAPKVariantsPath(t *testing.T) {
 	expected := "/applications/com.example/systemApks/42/variants"
 	if got := SystemAPKVariantsPath("com.example", 42); got != expected {
 		t.Errorf("expected %q, got %q", expected, got)
+	}
+}
+
+// --- parseRetryAfter ---
+
+func TestParseRetryAfter_ValidSeconds(t *testing.T) {
+	got := parseRetryAfter("5")
+	want := 5 * time.Second
+	if got != want {
+		t.Errorf("parseRetryAfter(%q) = %v, want %v", "5", got, want)
+	}
+}
+
+func TestParseRetryAfter_Empty(t *testing.T) {
+	got := parseRetryAfter("")
+	if got != 0 {
+		t.Errorf("parseRetryAfter(%q) = %v, want 0", "", got)
+	}
+}
+
+func TestParseRetryAfter_Invalid(t *testing.T) {
+	got := parseRetryAfter("abc")
+	if got != 0 {
+		t.Errorf("parseRetryAfter(%q) = %v, want 0", "abc", got)
+	}
+}
+
+func TestParseRetryAfter_Negative(t *testing.T) {
+	got := parseRetryAfter("-1")
+	if got != 0 {
+		t.Errorf("parseRetryAfter(%q) = %v, want 0", "-1", got)
+	}
+}
+
+func TestParseRetryAfter_CappedAt60(t *testing.T) {
+	got := parseRetryAfter("120")
+	want := 60 * time.Second
+	if got != want {
+		t.Errorf("parseRetryAfter(%q) = %v, want %v (capped at 60s)", "120", got, want)
+	}
+}
+
+func TestParseRetryAfter_Whitespace(t *testing.T) {
+	got := parseRetryAfter("  3  ")
+	want := 3 * time.Second
+	if got != want {
+		t.Errorf("parseRetryAfter(%q) = %v, want %v", "  3  ", got, want)
+	}
+}
+
+func TestRetryWithRetryAfterHeader(t *testing.T) {
+	attempts := 0
+	c, srv := testClient(t, func(w http.ResponseWriter, r *http.Request) {
+		attempts++
+		if attempts == 1 {
+			w.Header().Set("Retry-After", "1")
+			w.WriteHeader(429)
+			_, _ = w.Write([]byte(`{"error":{"code":429,"message":"rate limited"}}`))
+			return
+		}
+		w.WriteHeader(200)
+		_, _ = w.Write([]byte(`{"ok":true}`))
+	})
+	defer srv.Close()
+
+	resp, err := c.Get("/test", nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if string(resp) != `{"ok":true}` {
+		t.Errorf("unexpected response: %s", resp)
+	}
+	if attempts != 2 {
+		t.Errorf("expected 2 attempts, got %d", attempts)
 	}
 }
 
