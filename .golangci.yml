@@ -11,7 +11,6 @@ linters:
     - staticcheck
     - unused
     - misspell
-
-issues:
-  exclude-dirs:
-    - vendor
+  exclusions:
+    paths:
+      - vendor
