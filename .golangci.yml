@@ -1,0 +1,17 @@
+run:
+  timeout: 5m
+  modules-download-mode: readonly
+
+issues:
+  exclude-dirs:
+    - vendor
+
+linters:
+  enable:
+    - errcheck
+    - govet
+    - gosimple
+    - ineffassign
+    - staticcheck
+    - unused
+    - misspell

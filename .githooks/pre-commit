@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# Pre-commit hook for gpc
+# Install: git config core.hooksPath .githooks
+# Or:      cp .githooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+
+set -euo pipefail
+
+echo "Running pre-commit checks..."
+
+# Check formatting
+echo "  Checking gofmt..."
+UNFORMATTED=$(gofmt -l . 2>&1)
+if [ -n "$UNFORMATTED" ]; then
+    echo "ERROR: The following files are not formatted:"
+    echo "$UNFORMATTED"
+    echo "Run 'gofmt -s -w .' to fix."
+    exit 1
+fi
+
+# Run go vet
+echo "  Running go vet..."
+if ! go vet ./...; then
+    echo "ERROR: go vet failed."
+    exit 1
+fi
+
+# Build check
+echo "  Building..."
+if ! go build ./...; then
+    echo "ERROR: build failed."
+    exit 1
+fi
+
+echo "All pre-commit checks passed."

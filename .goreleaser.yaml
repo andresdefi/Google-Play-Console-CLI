@@ -1,0 +1,58 @@
+version: 2
+
+builds:
+  - binary: gpc
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: windows
+        goarch: arm64
+    ldflags:
+      - -s -w
+      - -X github.com/andresdefi/gpc/internal/version.Version={{.Version}}
+      - -X github.com/andresdefi/gpc/internal/version.Commit={{.Commit}}
+      - -X github.com/andresdefi/gpc/internal/version.Date={{.Date}}
+
+archives:
+  - format: tar.gz
+    name_template: "gpc_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        format: zip
+
+checksum:
+  name_template: "checksums.txt"
+  algorithm: sha256
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^ci:"
+      - "^chore:"
+      - "^style:"
+      - Merge pull request
+      - Merge branch
+
+brews:
+  - repository:
+      owner: andresdefi
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+    name: gpc
+    homepage: "https://github.com/andresdefi/gpc"
+    description: "Fast, lightweight, scriptable CLI for Google Play Console API"
+    license: "MIT"
+    install: |
+      bin.install "gpc"
+    test: |
+      system "#{bin}/gpc", "version"
