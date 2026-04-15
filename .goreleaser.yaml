@@ -49,9 +49,10 @@ brews:
       name: homebrew-tap
       token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
     name: gpc
-    homepage: "https://github.com/andresdefi/gpc"
+    homepage: "https://github.com/andresdefi/Google-Play-Console-CLI"
     description: "Fast, lightweight, scriptable CLI for Google Play Console API"
     license: "MIT"
+    skip_upload: auto
     install: |
       bin.install "gpc"
     test: |
