@@ -7,6 +7,7 @@
 - **Repo**: `andresdefi/Google-Play-Console-CLI`
 - **Go version**: 1.26+
 - **CLI framework**: Cobra (`github.com/spf13/cobra`)
+- **Formatter**: gofumpt (not gofmt)
 - **Status**: Active development, CI green, all tests passing
 
 ## Architecture
@@ -17,21 +18,24 @@ cmd/root.go          -> Root command, grouped help, global flags (--package, --o
                         fuzzy suggestions, registers all subcommands
 cmd/<resource>/      -> One package per API resource group, each exports NewCmd()
 cmd/config/          -> CLI configuration management (set/get/list/path)
-cmd/vitals/          -> App Vitals via Play Developer Reporting API
-internal/api/        -> HTTP client, path builders, edit helpers, upload support
+cmd/doctor/          -> Diagnostics (config, auth, API reachability, env vars)
+cmd/vitals/          -> App Vitals via Play Developer Reporting API [beta]
+internal/api/        -> HTTP client, path builders, edit helpers, upload, pagination
 internal/auth/       -> Service account JSON + OAuth2 token exchange + keyring storage
 internal/config/     -> ~/.gpc/config.json management (atomic writes, 0600 perms)
-internal/output/     -> TTY detection, table/JSON/CSV/YAML output routing
-internal/exitcode/   -> Exit code constants (0-5) and ExitError type
-internal/cmdutil/    -> ResolvePackage(), GetOutputFormat(), RequireAuth()
+internal/output/     -> TTY detection, table/JSON/CSV/YAML output, NO_COLOR support
+internal/exitcode/   -> Granular exit codes (0-6 + HTTP ranges 10-59, 60-99)
+internal/cmdutil/    -> ResolvePackage(), GetOutputFormat(), RequireAuth(), SanitizeArg()
+internal/spinner/    -> TTY-aware progress spinner for long operations
+internal/testutil/   -> Integration test helpers (SkipUnlessIntegration, RequireKeyFile)
 internal/version/    -> Version/Commit/Date variables injected via ldflags
 ```
 
 ## Stats
 
-- **57 Go source files** across 39 packages
-- **213 test functions** across 9 test files
-- **~130 API endpoints** covered across 36 command groups
+- **~60 Go source files** across 40+ packages
+- **244 test functions** across 12 test files
+- **~130 API endpoints** covered across 37 command groups
 - **4 output formats**: table, JSON, CSV, YAML
 
 ## Dependencies
@@ -49,8 +53,8 @@ gopkg.in/yaml.v3                 # YAML output
 
 ### Command Pattern
 Every command package exports `NewCmd() *cobra.Command`. Inside:
-1. `cmdutil.ResolvePackage(cmd)` - get package name from --package flag or config
-2. `cmdutil.RequireAuth()` - get OAuth2 token or fail with exit code 3
+1. `cmdutil.ResolvePackage(cmd)` - get package from flag > env > config
+2. `cmdutil.RequireAuth()` - get OAuth2 token, validate non-empty, or fail with exit code 3
 3. `api.NewClient(token)` - create API client
 4. Do the work, return `exitcode.*Error()` on failure
 5. `output.Print(format, data, tableRenderer)` - output results
@@ -61,85 +65,71 @@ The Google Play API uses "edits" (transactions) for app changes. Two patterns:
 - **Write**: `client.WithEdit(pkg, func(editID) error)` - auto creates, commits on success, deletes on error
 
 ### Path Builders
-All API URL paths are built by functions in `internal/api/client.go` (e.g. `api.TracksPath(pkg, editID)`). Never hardcode paths in commands.
+All API URL paths are built by functions in `internal/api/client.go`. Never hardcode paths in commands.
 
-### Grouped Help
-`cmd/root.go` overrides Cobra's default help with `groupedHelp()` that organizes commands into 10 logical categories (Getting Started, Release Pipeline, Monetization, App Vitals, etc.) using `text/tabwriter`.
+### Pagination
+`client.ListAll(path, params, mergeFn)` follows `nextPageToken` across all pages. Use for any list endpoint.
 
-### Fuzzy Suggestions
-`rootCmd.SuggestionsMinimumDistance = 2` enables "Did you mean...?" on command typos.
+### Config Resolution
+Priority: `--flag` > env var (`GPC_PACKAGE`, `GPC_KEY_FILE`, `GPC_OUTPUT`) > `~/.gpc/config.json` > auto-detect
 
 ### Exit Codes
-- 0: Success
-- 1: General error
-- 2: Usage error
-- 3: Auth error
-- 4: API error
-- 5: Config error
+- 0: Success, 1: General error, 2: Usage error
+- 3: Auth error (401/403), 4: Not found (404), 5: Conflict (409), 6: Config error
+- 10-59: HTTP 4xx (code = 10 + status - 400)
+- 60-99: HTTP 5xx (code = 60 + status - 500)
 
 ### Output Formats
-- `--output table` (default in TTY) - go-pretty tables
+- `--output table` (default in TTY) - go-pretty tables, respects NO_COLOR
 - `--output json` (default in pipes) - indented JSON
-- `--output csv` - CSV with headers
+- `--output csv` - CSV with headers via `output.PrintWithCSV()`
 - `--output yaml` - YAML via gopkg.in/yaml.v3
 - Auto-detection via `term.IsTerminal()`
+
+### Retry Logic
+Retries on 429/500/502/503/504 with exponential backoff. Respects `Retry-After` header when present, capped at 60s.
+
+### Stability Labels
+Commands may be annotated with `[beta]` in their Short description to indicate pre-stable APIs.
 
 ## Build & CI
 
 ```bash
-make build      # Binary with version metadata via ldflags
-make test       # Tests with race detection
-make lint       # golangci-lint v2
-make check      # fmt + vet + lint + test
-make install    # Install to GOPATH/bin
+make build           # Binary with version metadata via ldflags
+make test            # Tests with race detection
+make test-integration # Integration tests (requires GPC_KEY_FILE)
+make lint            # golangci-lint v2
+make fmt             # gofumpt formatting
+make security        # gosec security scanner
+make check           # fmt + vet + lint + security + test
+make tools           # Install dev dependencies (golangci-lint, gofumpt, gosec)
+make generate-docs   # Auto-generate docs/COMMANDS.md from CLI help
+make install-hooks   # Configure git pre-commit hooks
 ```
 
 ### CI/CD (GitHub Actions)
 - **ci.yml**: Build (Go 1.26 + stable matrix), lint (golangci-lint v2.11.4 via action v7)
-- **release.yml**: GoReleaser on tag push, Homebrew tap auto-update
+- **release.yml**: GoReleaser on tag push, Homebrew tap auto-update (andresdefi/homebrew-tap)
 - **security.yml**: CodeQL + govulncheck, weekly schedule
-
-### Linting
-golangci-lint v2 with: errcheck, govet, ineffassign, staticcheck, unused, misspell
 
 ## Testing Patterns
 
 - API client: `httptest.NewServer` with mock handlers, `NewClientWithHTTP` for injection
+- Pagination: mock multi-page responses with nextPageToken
 - Config: `t.TempDir()` + `t.Setenv("HOME", ...)` for filesystem isolation
+- Env vars: `t.Setenv("GPC_PACKAGE", ...)` for env var override tests
 - Commands: verify command tree structure via `rootCmd.Commands()`
 - Output: capture stdout/stderr via `os.Pipe()`
-- Auth: keychain bypassed in tests via config file fallback
-
-## API Coverage
-
-Full coverage of Google Play Developer API v3 (~130 endpoints across 36 resource groups):
-
-**Release Pipeline**: edits, tracks, releases (with deploy convenience), apks, bundles,
-deobfuscation, expansion-files, country-availability
-
-**Monetization**: iap, subscriptions, base-plans, offers, one-time-products,
-purchase-options, otp-offers, pricing
-
-**Store Presence**: listings, images, details, testers, reviews, data-safety
-
-**App Vitals** (Play Developer Reporting API): crashes, anrs, startup, rendering,
-battery, errors (counts + issues)
-
-**Orders & Purchases**: orders, purchases (products v1/v2, subscriptions v1/v2, voided)
-
-**Account**: users, grants
-
-**Device & Recovery**: devices, app-recovery, external-transactions
-
-**APK Variants**: generated-apks, system-apks, internal-sharing
+- Integration: `testutil.SkipUnlessIntegration(t)` for opt-in real API tests
 
 ## Conventions
 
+- Format with gofumpt, not gofmt
 - Named exports preferred
 - Errors wrap context: `fmt.Errorf("could not X: %w", err)`
 - Commands return `exitcode.*Error()`, never call `os.Exit()` directly
-- Use existing path builders in `internal/api/client.go`, don't hardcode API URLs
+- Use existing path builders, don't hardcode API URLs
 - Unchecked error returns: use `_ =` or `defer func() { _ = ... }()`
-- Table renderers go inline in command RunE functions
-- stdin JSON for complex request bodies (create/update commands)
+- Input sanitization: `cmdutil.SanitizeArg()` or `strings.TrimSpace()` on all user input
 - `google.CredentialsFromJSONWithType` (not deprecated `CredentialsFromJSON`)
+- Use `spinner.New()` for long operations (uploads, API calls)

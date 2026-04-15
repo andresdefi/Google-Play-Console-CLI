@@ -51,9 +51,9 @@ func newListCmd() *cobra.Command {
 			output.Print(format, json.RawMessage(resp), func(w io.Writer, data any) {
 				var list struct {
 					GeneratedAPKs []struct {
-						DownloadID    string `json:"downloadId"`
-						VariantID     int    `json:"variantId"`
-						CertSHA256    string `json:"certificateSha256Fingerprint"`
+						DownloadID string `json:"downloadId"`
+						VariantID  int    `json:"variantId"`
+						CertSHA256 string `json:"certificateSha256Fingerprint"`
 					} `json:"generatedApks"`
 				}
 				raw := data.(json.RawMessage)

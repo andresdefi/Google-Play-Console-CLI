@@ -7,7 +7,7 @@ import (
 
 // Edit represents an edit session.
 type Edit struct {
-	ID             string `json:"id"`
+	ID                string `json:"id"`
 	ExpiryTimeSeconds string `json:"expiryTimeSeconds,omitempty"`
 }
 

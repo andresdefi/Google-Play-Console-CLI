@@ -53,8 +53,8 @@ func newListCmd() *cobra.Command {
 			output.Print(format, json.RawMessage(resp), func(w io.Writer, data any) {
 				var list struct {
 					Variants []struct {
-						VariantID   int    `json:"variantId"`
-						DeviceSpec  json.RawMessage `json:"deviceSpec"`
+						VariantID  int             `json:"variantId"`
+						DeviceSpec json.RawMessage `json:"deviceSpec"`
 					} `json:"variants"`
 				}
 				raw := data.(json.RawMessage)

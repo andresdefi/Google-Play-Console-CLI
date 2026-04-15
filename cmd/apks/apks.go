@@ -58,10 +58,10 @@ func newListCmd() *cobra.Command {
 				var list struct {
 					Kind string `json:"kind"`
 					APKs []struct {
-						VersionCode int    `json:"versionCode"`
+						VersionCode int `json:"versionCode"`
 						Binary      struct {
-							SHA1    string `json:"sha1"`
-							SHA256  string `json:"sha256"`
+							SHA1   string `json:"sha1"`
+							SHA256 string `json:"sha256"`
 						} `json:"binary"`
 					} `json:"apks"`
 				}

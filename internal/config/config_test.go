@@ -59,10 +59,10 @@ func TestLoad_ValidConfig(t *testing.T) {
 	t.Setenv("HOME", tmp)
 
 	dir := filepath.Join(tmp, ".gpc")
-	_ = os.MkdirAll(dir, 0700)
+	_ = os.MkdirAll(dir, 0o700)
 
 	data := `{"key_file_path":"/path/to/key.json","package_name":"com.example"}`
-	_ = os.WriteFile(filepath.Join(dir, "config.json"), []byte(data), 0600)
+	_ = os.WriteFile(filepath.Join(dir, "config.json"), []byte(data), 0o600)
 
 	cfg, err := Load()
 	if err != nil {
@@ -81,8 +81,8 @@ func TestLoad_InvalidJSON(t *testing.T) {
 	t.Setenv("HOME", tmp)
 
 	dir := filepath.Join(tmp, ".gpc")
-	_ = os.MkdirAll(dir, 0700)
-	_ = os.WriteFile(filepath.Join(dir, "config.json"), []byte("not json!"), 0600)
+	_ = os.MkdirAll(dir, 0o700)
+	_ = os.WriteFile(filepath.Join(dir, "config.json"), []byte("not json!"), 0o600)
 
 	_, err := Load()
 	if err == nil {
@@ -221,7 +221,7 @@ func TestConfig_Permissions(t *testing.T) {
 		t.Fatal(err)
 	}
 	dirPerm := dirInfo.Mode().Perm()
-	if dirPerm != 0700 {
+	if dirPerm != 0o700 {
 		t.Errorf("expected dir perm 0700, got %04o", dirPerm)
 	}
 
@@ -233,7 +233,7 @@ func TestConfig_Permissions(t *testing.T) {
 		t.Fatal(err)
 	}
 	filePerm := fileInfo.Mode().Perm()
-	if filePerm != 0600 {
+	if filePerm != 0o600 {
 		t.Errorf("expected file perm 0600, got %04o", filePerm)
 	}
 }

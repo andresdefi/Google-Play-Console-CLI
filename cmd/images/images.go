@@ -58,9 +58,9 @@ func newListCmd() *cobra.Command {
 			output.Print(format, resp, func(w io.Writer, data any) {
 				var result struct {
 					Images []struct {
-						ID  string `json:"id"`
-						URL string `json:"url"`
-						SHA1 string `json:"sha1"`
+						ID     string `json:"id"`
+						URL    string `json:"url"`
+						SHA1   string `json:"sha1"`
 						SHA256 string `json:"sha256"`
 					} `json:"images"`
 				}

@@ -577,12 +577,12 @@ func newVoidedListCmd() *cobra.Command {
 			output.Print(format, json.RawMessage(resp), func(w io.Writer, data any) {
 				var list struct {
 					VoidedPurchases []struct {
-						PurchaseToken    string `json:"purchaseToken"`
-						PurchaseTimeMS   string `json:"purchaseTimeMillis"`
-						VoidedTimeMS     string `json:"voidedTimeMillis"`
-						OrderID          string `json:"orderId"`
-						VoidedSource     int    `json:"voidedSource"`
-						VoidedReason     int    `json:"voidedReason"`
+						PurchaseToken  string `json:"purchaseToken"`
+						PurchaseTimeMS string `json:"purchaseTimeMillis"`
+						VoidedTimeMS   string `json:"voidedTimeMillis"`
+						OrderID        string `json:"orderId"`
+						VoidedSource   int    `json:"voidedSource"`
+						VoidedReason   int    `json:"voidedReason"`
 					} `json:"voidedPurchases"`
 				}
 				raw := data.(json.RawMessage)

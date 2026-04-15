@@ -12,6 +12,7 @@ import (
 	"github.com/andresdefi/gpc/internal/cmdutil"
 	"github.com/andresdefi/gpc/internal/exitcode"
 	"github.com/andresdefi/gpc/internal/output"
+	"github.com/andresdefi/gpc/internal/spinner"
 	"github.com/spf13/cobra"
 )
 
@@ -64,11 +65,11 @@ func newListCmd() *cobra.Command {
 				var t struct {
 					Track    string `json:"track"`
 					Releases []struct {
-						Name            string   `json:"name"`
-						Status          string   `json:"status"`
-						VersionCodes    []string `json:"versionCodes"`
-						UserFraction    float64  `json:"userFraction"`
-						ReleaseNotes    []any    `json:"releaseNotes"`
+						Name         string   `json:"name"`
+						Status       string   `json:"status"`
+						VersionCodes []string `json:"versionCodes"`
+						UserFraction float64  `json:"userFraction"`
+						ReleaseNotes []any    `json:"releaseNotes"`
 					} `json:"releases"`
 				}
 				raw := data.(json.RawMessage)
@@ -141,22 +142,26 @@ This convenience command handles the full edit flow:
 			}
 
 			client := api.NewClient(token)
-			fmt.Fprintf(os.Stderr, "Deploying %s to %s track...\n", filepath.Base(filePath), trackName)
+			artifactType := "bundle"
+			if isAPK {
+				artifactType = "APK"
+			}
+
+			sp := spinner.New(fmt.Sprintf("Uploading %s", artifactType))
+			sp.Start()
 
 			_, err = client.WithEdit(pkg, func(editID string) error {
 				// Step 1: Upload the artifact.
 				var uploadPath string
-				var uploadResp json.RawMessage
 				if isBundle {
 					uploadPath = api.BundlesPath(pkg, editID)
-					fmt.Fprintf(os.Stderr, "  Uploading bundle...\n")
 				} else {
 					uploadPath = api.APKsPath(pkg, editID)
-					fmt.Fprintf(os.Stderr, "  Uploading APK...\n")
 				}
 
 				uploadResp, err := client.Upload(uploadPath, filePath, "application/octet-stream")
 				if err != nil {
+					sp.Stop("Upload failed")
 					return fmt.Errorf("upload failed: %w", err)
 				}
 
@@ -165,11 +170,15 @@ This convenience command handles the full edit flow:
 					VersionCode int `json:"versionCode"`
 				}
 				if err := json.Unmarshal(uploadResp, &uploaded); err != nil {
+					sp.Stop("Upload failed")
 					return fmt.Errorf("could not parse upload response: %w", err)
 				}
-				fmt.Fprintf(os.Stderr, "  Uploaded version code: %d\n", uploaded.VersionCode)
+				sp.Stop(fmt.Sprintf("Uploaded version code: %d", uploaded.VersionCode))
 
 				// Step 2: Assign to track.
+				sp2 := spinner.New(fmt.Sprintf("Assigning to %s track", trackName))
+				sp2.Start()
+
 				release := map[string]any{
 					"versionCodes": []int{uploaded.VersionCode},
 					"status":       "completed",
@@ -199,16 +208,15 @@ This convenience command handles the full edit flow:
 					"releases": []any{release},
 				}
 
-				fmt.Fprintf(os.Stderr, "  Assigning to %s track...\n", trackName)
 				_, err = client.Put(api.TrackPath(pkg, editID, trackName), trackBody)
 				if err != nil {
+					sp2.Stop("Failed")
 					return fmt.Errorf("could not assign to track: %w", err)
 				}
+				sp2.Stop("Assigned")
 
-				_ = uploadResp
 				return nil
 			})
-
 			if err != nil {
 				return exitcode.APIErrorExit("%v", err)
 			}
@@ -275,7 +283,6 @@ func newPromoteCmd() *cobra.Command {
 				_, err = client.Put(api.TrackPath(pkg, editID, toTrack), trackBody)
 				return err
 			})
-
 			if err != nil {
 				return exitcode.APIErrorExit("%v", err)
 			}
@@ -341,7 +348,6 @@ func newRolloutCmd() *cobra.Command {
 				_, err = client.Put(api.TrackPath(pkg, editID, trackName), t)
 				return err
 			})
-
 			if err != nil {
 				return exitcode.APIErrorExit("%v", err)
 			}
@@ -400,7 +406,6 @@ func newHaltCmd() *cobra.Command {
 				_, err = client.Put(api.TrackPath(pkg, editID, trackName), t)
 				return err
 			})
-
 			if err != nil {
 				return exitcode.APIErrorExit("%v", err)
 			}

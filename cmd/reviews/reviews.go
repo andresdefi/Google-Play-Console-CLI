@@ -50,9 +50,9 @@ func newListCmd() *cobra.Command {
 			output.Print(format, json.RawMessage(resp), func(w io.Writer, data any) {
 				var result struct {
 					Reviews []struct {
-						ReviewID string `json:"reviewId"`
+						ReviewID   string `json:"reviewId"`
 						AuthorName string `json:"authorName"`
-						Comments []struct {
+						Comments   []struct {
 							UserComment struct {
 								StarRating int    `json:"starRating"`
 								Text       string `json:"text"`

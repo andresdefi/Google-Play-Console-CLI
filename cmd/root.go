@@ -12,6 +12,7 @@ import (
 	"github.com/andresdefi/gpc/cmd/bundles"
 	cfgcmd "github.com/andresdefi/gpc/cmd/config"
 	"github.com/andresdefi/gpc/cmd/countryavailability"
+	"github.com/andresdefi/gpc/cmd/doctor"
 	"github.com/andresdefi/gpc/cmd/datasafety"
 	"github.com/andresdefi/gpc/cmd/deobfuscation"
 	"github.com/andresdefi/gpc/cmd/details"
@@ -54,7 +55,7 @@ type commandGroup struct {
 var groups = []commandGroup{
 	{
 		Title:    "GETTING STARTED",
-		Commands: []string{"auth", "config", "version", "completion"},
+		Commands: []string{"auth", "config", "doctor", "version", "completion"},
 	},
 	{
 		Title:    "APP MANAGEMENT",
@@ -115,6 +116,7 @@ func init() {
 	// Getting started
 	rootCmd.AddCommand(auth.NewCmd())
 	rootCmd.AddCommand(cfgcmd.NewCmd())
+	rootCmd.AddCommand(doctor.NewCmd())
 	rootCmd.AddCommand(newVersionCmd())
 
 	// App management
@@ -249,4 +251,3 @@ func groupedHelp(cmd *cobra.Command, args []string) {
 
 	fmt.Printf("Use \"%s [command] --help\" for more information about a command.\n", cmd.Use)
 }
-

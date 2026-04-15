@@ -501,7 +501,7 @@ func TestUpload_Success(t *testing.T) {
 
 	// Create a temp file to upload.
 	tmp := filepath.Join(t.TempDir(), "test.apk")
-	if err := os.WriteFile(tmp, []byte("fake-apk-content"), 0644); err != nil {
+	if err := os.WriteFile(tmp, []byte("fake-apk-content"), 0o644); err != nil {
 		t.Fatal(err)
 	}
 
@@ -537,7 +537,7 @@ func TestUpload_APIError(t *testing.T) {
 	defer srv.Close()
 
 	tmp := filepath.Join(t.TempDir(), "test.apk")
-	_ = os.WriteFile(tmp, []byte("bad-apk"), 0644)
+	_ = os.WriteFile(tmp, []byte("bad-apk"), 0o644)
 
 	_, err := c.Upload("/upload", tmp, "application/octet-stream")
 	if err == nil {

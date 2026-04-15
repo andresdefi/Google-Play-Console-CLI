@@ -11,8 +11,8 @@ import (
 const (
 	dirName  = ".gpc"
 	fileName = "config.json"
-	dirPerm  = 0700
-	filePerm = 0600
+	dirPerm  = 0o700
+	filePerm = 0o600
 )
 
 // Config holds the CLI configuration.

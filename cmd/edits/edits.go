@@ -187,4 +187,3 @@ func newDeleteCmd() *cobra.Command {
 	_ = cmd.MarkFlagRequired("edit-id")
 	return cmd
 }
-
