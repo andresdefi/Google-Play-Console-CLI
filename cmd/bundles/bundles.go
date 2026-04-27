@@ -2,9 +2,11 @@ package bundles
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/andresdefi/gpc/internal/api"
 	"github.com/andresdefi/gpc/internal/cmdutil"
@@ -104,11 +106,37 @@ func newUploadCmd() *cobra.Command {
 				return err
 			})
 			if err != nil {
-				return exitcode.APIErrorExit("%v", err)
+				return exitcode.APIErrorExit("%v", withUploadGuidance(err))
 			}
 
 			output.Success(fmt.Sprintf("Bundle uploaded and committed for %s", pkg))
 			return nil
 		},
 	}
+}
+
+func withUploadGuidance(err error) error {
+	var apiErr *api.APIError
+	if !errors.As(err, &apiErr) {
+		return err
+	}
+	if !shouldSuggestPlayConsoleSetup(apiErr) {
+		return err
+	}
+	return fmt.Errorf("%w\n\nUpload failed - new apps may require completing setup in the Play Console first (store listing, content rating, data safety form). Also verify the service account has been invited in Play Console > Users and permissions for this app. Visit https://play.google.com/console to complete setup, then retry", err)
+}
+
+func shouldSuggestPlayConsoleSetup(err *api.APIError) bool {
+	if err == nil {
+		return false
+	}
+	if err.StatusCode == 404 || err.StatusCode == 403 {
+		return true
+	}
+	text := strings.ToLower(err.Error())
+	return strings.Contains(text, "not found") ||
+		strings.Contains(text, "permission") ||
+		strings.Contains(text, "access") ||
+		strings.Contains(text, "not configured") ||
+		strings.Contains(text, "setup")
 }

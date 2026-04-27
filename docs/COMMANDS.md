@@ -1,6 +1,6 @@
 # gpc Command Reference
 
-Auto-generated from `gpc --help` on 2026-04-15.
+Auto-generated from `gpc --help` on 2026-04-27.
 
 gpc is a fast, lightweight, and scriptable CLI for the Google Play Developer API.
 
@@ -189,7 +189,8 @@ DEVICE & RECOVERY:
 APK VARIANTS:
 
 ADDITIONAL COMMANDS:
-  get  Get app details
+  get     Get app details
+  status  Check app API readiness
 
 Flags:
   -h, --help             help for apps
@@ -230,6 +231,7 @@ APK VARIANTS:
 ADDITIONAL COMMANDS:
   login   Authenticate with a service account key file
   logout  Remove stored credentials
+  setup   Set up Google Cloud service account authentication
   status  Show authentication status
 
 Flags:

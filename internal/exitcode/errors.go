@@ -1,6 +1,9 @@
 package exitcode
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+)
 
 // ExitError is an error that carries a specific exit code.
 type ExitError struct {
@@ -27,10 +30,36 @@ func AuthError(format string, args ...any) *ExitError {
 
 // APIErrorExit creates an exit error for API failures.
 func APIErrorExit(format string, args ...any) *ExitError {
-	return NewExitError(API, format, args...)
+	return NewExitError(apiExitCode(args...), format, args...)
 }
 
 // ConfigError creates an exit error for configuration failures.
 func ConfigError(format string, args ...any) *ExitError {
 	return NewExitError(Config, format, args...)
+}
+
+type httpStatusCoder interface {
+	HTTPStatusCode() int
+}
+
+func apiExitCode(args ...any) int {
+	for _, arg := range args {
+		if arg == nil {
+			continue
+		}
+		if coder, ok := arg.(httpStatusCoder); ok {
+			if code := FromHTTPStatus(coder.HTTPStatusCode()); code != Error {
+				return code
+			}
+		}
+		if err, ok := arg.(error); ok {
+			var coder httpStatusCoder
+			if errors.As(err, &coder) {
+				if code := FromHTTPStatus(coder.HTTPStatusCode()); code != Error {
+					return code
+				}
+			}
+		}
+	}
+	return API
 }

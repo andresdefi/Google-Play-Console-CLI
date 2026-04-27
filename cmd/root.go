@@ -12,11 +12,11 @@ import (
 	"github.com/andresdefi/gpc/cmd/bundles"
 	cfgcmd "github.com/andresdefi/gpc/cmd/config"
 	"github.com/andresdefi/gpc/cmd/countryavailability"
-	"github.com/andresdefi/gpc/cmd/doctor"
 	"github.com/andresdefi/gpc/cmd/datasafety"
 	"github.com/andresdefi/gpc/cmd/deobfuscation"
 	"github.com/andresdefi/gpc/cmd/details"
 	"github.com/andresdefi/gpc/cmd/devices"
+	"github.com/andresdefi/gpc/cmd/doctor"
 	"github.com/andresdefi/gpc/cmd/edits"
 	"github.com/andresdefi/gpc/cmd/expansionfiles"
 	"github.com/andresdefi/gpc/cmd/externaltransactions"
@@ -183,6 +183,7 @@ func init() {
 func Execute() int {
 	if err := rootCmd.Execute(); err != nil {
 		if apiErr, ok := err.(*exitcode.ExitError); ok {
+			output.Errorf("%s", apiErr.Message)
 			return apiErr.Code
 		}
 		output.Errorf("%v", err)

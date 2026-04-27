@@ -1,6 +1,7 @@
 package exitcode
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -138,6 +139,33 @@ func TestAPIErrorExit(t *testing.T) {
 	}
 	if e.Message != "api failed: 500" {
 		t.Errorf("expected 'api failed: 500', got %q", e.Message)
+	}
+}
+
+type testHTTPStatusError struct {
+	status int
+}
+
+func (e testHTTPStatusError) Error() string {
+	return "api failed"
+}
+
+func (e testHTTPStatusError) HTTPStatusCode() int {
+	return e.status
+}
+
+func TestAPIErrorExit_HTTPStatus(t *testing.T) {
+	e := APIErrorExit("%v", testHTTPStatusError{status: 403})
+	if e.Code != Auth {
+		t.Errorf("expected code %d, got %d", Auth, e.Code)
+	}
+}
+
+func TestAPIErrorExit_WrappedHTTPStatus(t *testing.T) {
+	err := fmt.Errorf("wrapped: %w", testHTTPStatusError{status: 422})
+	e := APIErrorExit("%v", err)
+	if e.Code != 32 {
+		t.Errorf("expected code 32, got %d", e.Code)
 	}
 }
 

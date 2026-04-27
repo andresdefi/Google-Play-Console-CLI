@@ -64,13 +64,72 @@ type APIError struct {
 	Code       int    `json:"code"`
 	Message    string `json:"message"`
 	Status     string `json:"status"`
+	Errors     []struct {
+		Domain  string `json:"domain,omitempty"`
+		Reason  string `json:"reason,omitempty"`
+		Message string `json:"message,omitempty"`
+	} `json:"errors,omitempty"`
+	Details []struct {
+		Type     string            `json:"@type,omitempty"`
+		Reason   string            `json:"reason,omitempty"`
+		Domain   string            `json:"domain,omitempty"`
+		Metadata map[string]string `json:"metadata,omitempty"`
+	} `json:"details,omitempty"`
+	Body string `json:"-"`
 }
 
 func (e *APIError) Error() string {
-	if e.Message != "" {
-		return fmt.Sprintf("API error %d: %s", e.StatusCode, e.Message)
+	var parts []string
+	if e.Status != "" {
+		parts = append(parts, e.Status)
 	}
-	return fmt.Sprintf("API error %d", e.StatusCode)
+	if e.Message != "" {
+		parts = append(parts, e.Message)
+	}
+	if reasons := e.Reasons(); len(reasons) > 0 {
+		parts = append(parts, "reason: "+strings.Join(reasons, ", "))
+	}
+	if len(parts) > 0 {
+		return e.withBody(fmt.Sprintf("API error %d: %s", e.StatusCode, strings.Join(parts, ": ")))
+	}
+	return e.withBody(fmt.Sprintf("API error %d", e.StatusCode))
+}
+
+// HTTPStatusCode returns the HTTP response status associated with the API error.
+func (e *APIError) HTTPStatusCode() int {
+	if e == nil {
+		return 0
+	}
+	return e.StatusCode
+}
+
+// Reasons returns Google API error reasons found in legacy errors or google.rpc details.
+func (e *APIError) Reasons() []string {
+	if e == nil {
+		return nil
+	}
+	seen := make(map[string]bool)
+	var reasons []string
+	for _, item := range e.Errors {
+		if item.Reason != "" && !seen[item.Reason] {
+			seen[item.Reason] = true
+			reasons = append(reasons, item.Reason)
+		}
+	}
+	for _, item := range e.Details {
+		if item.Reason != "" && !seen[item.Reason] {
+			seen[item.Reason] = true
+			reasons = append(reasons, item.Reason)
+		}
+	}
+	return reasons
+}
+
+func (e *APIError) withBody(message string) string {
+	if e == nil || e.Body == "" || e.Body == e.Message {
+		return message
+	}
+	return message + "\nResponse body: " + e.Body
 }
 
 type errorResponse struct {
@@ -278,14 +337,17 @@ func (c *Client) doWithParams(method, path string, params map[string]string, bod
 }
 
 func parseAPIError(statusCode int, body []byte) *APIError {
+	bodyText := strings.TrimSpace(string(body))
 	var errResp errorResponse
 	if err := json.Unmarshal(body, &errResp); err == nil && errResp.Error != nil {
 		errResp.Error.StatusCode = statusCode
+		errResp.Error.Body = bodyText
 		return errResp.Error
 	}
 	return &APIError{
 		StatusCode: statusCode,
-		Message:    strings.TrimSpace(string(body)),
+		Message:    bodyText,
+		Body:       bodyText,
 	}
 }
 

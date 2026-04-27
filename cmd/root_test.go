@@ -111,6 +111,25 @@ func TestAuthCommand_HasSubcommands_Logout(t *testing.T) {
 	t.Error("auth command not found")
 }
 
+func TestAuthCommand_HasSubcommands_Setup(t *testing.T) {
+	for _, c := range rootCmd.Commands() {
+		if c.Name() == "auth" {
+			found := false
+			for _, sub := range c.Commands() {
+				if sub.Name() == "setup" {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Error("expected 'setup' subcommand under 'auth'")
+			}
+			return
+		}
+	}
+	t.Error("auth command not found")
+}
+
 func TestVersionCommand_Exists(t *testing.T) {
 	if !findSubcommand("version") {
 		t.Error("expected 'version' subcommand")
@@ -121,6 +140,25 @@ func TestAppsCommand_Exists(t *testing.T) {
 	if !findSubcommand("apps") {
 		t.Error("expected 'apps' subcommand")
 	}
+}
+
+func TestAppsCommand_HasSubcommands_Status(t *testing.T) {
+	for _, c := range rootCmd.Commands() {
+		if c.Name() == "apps" {
+			found := false
+			for _, sub := range c.Commands() {
+				if sub.Name() == "status" {
+					found = true
+					break
+				}
+			}
+			if !found {
+				t.Error("expected 'status' subcommand under 'apps'")
+			}
+			return
+		}
+	}
+	t.Error("apps command not found")
 }
 
 func TestEditsCommand_Exists(t *testing.T) {

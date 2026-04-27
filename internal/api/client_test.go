@@ -475,6 +475,18 @@ func TestAPIError_Error_WithMessage(t *testing.T) {
 	}
 }
 
+func TestAPIError_Error_WithStatusAndReason(t *testing.T) {
+	body := []byte(`{"error":{"code":404,"message":"app not found","status":"NOT_FOUND","errors":[{"reason":"notFound","message":"missing"}]}}`)
+	e := parseAPIError(404, body)
+	expected := "API error 404: NOT_FOUND: app not found: reason: notFound\nResponse body: " + string(body)
+	if e.Error() != expected {
+		t.Errorf("expected %q, got %q", expected, e.Error())
+	}
+	if e.Body != string(body) {
+		t.Errorf("expected raw body to be preserved")
+	}
+}
+
 func TestAPIError_Error_WithoutMessage(t *testing.T) {
 	e := &APIError{StatusCode: 500}
 	expected := "API error 500"
